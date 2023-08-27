@@ -5,6 +5,7 @@ using Serilog;
 using System.Reflection;
 using ReflowOvenAPI.ModelsDTO.Mappings;
 using ReflowOven.API.Integration.Peripheral;
+using ReflowOven.API.Integration.Peripheral.HostedServices;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOriginsCORS";
 var builder = WebApplication.CreateBuilder(args);
@@ -13,8 +14,9 @@ var configuration = builder.Configuration;
 configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+builder.Services.AddHostedService<BackgroundWorkerService>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(C =>
