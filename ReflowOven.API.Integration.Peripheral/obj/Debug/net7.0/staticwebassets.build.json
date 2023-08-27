@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "8cMvZM2V2IAuiNR/QngV/eYFNZWuk28fQkH0WLPNQUQ=",
+  "Source": "ReflowOven.API.Integration.Peripheral",
+  "BasePath": "_content/ReflowOven.API.Integration.Peripheral",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
