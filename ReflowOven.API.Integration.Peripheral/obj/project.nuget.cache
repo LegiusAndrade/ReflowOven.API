@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "v8/taj/QQx+2Qt0OYrLYJUkbQXu//tRLYtkW5uoPZf7OepyDn6rGx4xlZlVbflWM7skN2glMPDhacV2orfCzKQ==",
+  "dgSpecHash": "dpxmECE+p/ryOom/ZYSt/JSj82+GaVgBLni+0IErgnADJo0dVmj8afihPRqUA+4hs57da8juXni8S2n1SZ2gVQ==",
   "success": true,
-  "projectFilePath": "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
+  "projectFilePath": "c:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\LuquiinhaS\\.nuget\\packages\\asp.versioning.abstractions\\7.0.0\\asp.versioning.abstractions.7.0.0.nupkg.sha512",
     "C:\\Users\\LuquiinhaS\\.nuget\\packages\\asp.versioning.http\\7.0.1\\asp.versioning.http.7.0.1.nupkg.sha512",
@@ -54,6 +54,7 @@
     "C:\\Users\\LuquiinhaS\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.5.0\\swashbuckle.aspnetcore.swagger.6.5.0.nupkg.sha512",
     "C:\\Users\\LuquiinhaS\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.5.0\\swashbuckle.aspnetcore.swaggergen.6.5.0.nupkg.sha512",
     "C:\\Users\\LuquiinhaS\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.5.0\\swashbuckle.aspnetcore.swaggerui.6.5.0.nupkg.sha512",
+    "C:\\Users\\LuquiinhaS\\.nuget\\packages\\system.device.gpio\\3.0.0\\system.device.gpio.3.0.0.nupkg.sha512",
     "C:\\Users\\LuquiinhaS\\.nuget\\packages\\system.diagnostics.diagnosticsource\\7.0.1\\system.diagnostics.diagnosticsource.7.0.1.nupkg.sha512",
     "C:\\Users\\LuquiinhaS\\.nuget\\packages\\system.diagnostics.eventlog\\7.0.0\\system.diagnostics.eventlog.7.0.0.nupkg.sha512",
     "C:\\Users\\LuquiinhaS\\.nuget\\packages\\system.serviceprocess.servicecontroller\\7.0.1\\system.serviceprocess.servicecontroller.7.0.1.nupkg.sha512",

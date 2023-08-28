@@ -1,8 +1,8 @@
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\appsettings.Development.json
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\appsettings.json
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\ReflowOven.API.Integration.Peripheral.exe
-C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\ReflowOven.API.Integration.Peripheral.deps.json
-C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\ReflowOven.API.Integration.Peripheral.runtimeconfig.json
+c:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\ReflowOven.API.Integration.Peripheral.deps.json
+c:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\ReflowOven.API.Integration.Peripheral.runtimeconfig.json
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\ReflowOven.API.Integration.Peripheral.dll
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\ReflowOven.API.Integration.Peripheral.pdb
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\ReflowOven.API.Integration.Peripheral.xml
@@ -49,10 +49,11 @@ C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\sta
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\staticwebassets.build.json
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\staticwebassets.development.json
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\scopedcss\bundle\ReflowOven.API.Integration.Peripheral.styles.css
-C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.csproj.CopyComplete
+c:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.csproj.CopyComplete
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.dll
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\refint\ReflowOven.API.Integration.Peripheral.dll
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.xml
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.pdb
-C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.genruntimeconfig.cache
-C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ref\ReflowOven.API.Integration.Peripheral.dll
+c:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.genruntimeconfig.cache
+c:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ref\ReflowOven.API.Integration.Peripheral.dll
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\System.Device.Gpio.dll

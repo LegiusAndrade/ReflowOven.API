@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj": {}
+    "c:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj": {}
   },
   "projects": {
-    "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj": {
+    "c:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
+        "projectUniqueName": "c:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
         "projectName": "ReflowOven.API.Integration.Peripheral",
-        "projectPath": "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
+        "projectPath": "c:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
         "packagesPath": "C:\\Users\\LuquiinhaS\\.nuget\\packages\\",
-        "outputPath": "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\obj\\",
+        "outputPath": "c:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\LuquiinhaS\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -91,6 +91,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
+            },
+            "System.Device.Gpio": {
+              "target": "Package",
+              "version": "[3.0.0, )"
             }
           },
           "imports": [
