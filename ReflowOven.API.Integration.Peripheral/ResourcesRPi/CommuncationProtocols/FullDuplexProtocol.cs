@@ -6,10 +6,12 @@ namespace ReflowOven.API.Integration.Peripheral.ResourcesRPi.CommuncationProtoco
 
 public class FullDuplexProtocol
 {
-    const ushort MESSAGE_ID_SEND = 0xBEBE;           // Protocol init message for send
-    const byte PROTOCOL_VERSION = 100;               // Protocol version: 1.00
-        
-    private ushort sequence_number = 1;              // Sequence number for the protocol
+    const UInt16 MESSAGE_ID_SEND = 0xBEBE;           // Protocol init message for send
+    public byte PROTOCOL_VERSION = 100;               // Protocol version: 1.00
+
+    public UInt16 SizeHeader { get; private set; }
+
+    private UInt16 sequenceNumber = 1;              // Sequence number for the protocol
 
     private object sequenceLock = new object();
 
@@ -18,13 +20,13 @@ public class FullDuplexProtocol
     {
         lock (sequenceLock)
         {
-            if (sequence_number == UInt16.MaxValue)
+            if (sequenceNumber == UInt16.MaxValue)
             {
-                sequence_number = 1; // Reset to 1 if it reaches the maximum value
+                sequenceNumber = 1; // Reset to 1 if it reaches the maximum value
             }
             else
             {
-                sequence_number++; // Otherwise, simply increment it
+                sequenceNumber++; // Otherwise, simply increment it
             }
         }
     }
@@ -37,8 +39,8 @@ public class FullDuplexProtocol
         messageBuffer.Add((byte)((MESSAGE_ID_SEND & 0xFF00) >> 8));
         messageBuffer.Add((byte)(MESSAGE_ID_SEND & 0x00FF));
         messageBuffer.Add(PROTOCOL_VERSION);
-        messageBuffer.Add((byte)((sequence_number & 0xFF00) >> 8));
-        messageBuffer.Add((byte)(sequence_number & 0x00FF));
+        messageBuffer.Add((byte)((sequenceNumber & 0xFF00) >> 8));
+        messageBuffer.Add((byte)(sequenceNumber & 0x00FF));
         messageBuffer.Add((byte)((cmd & 0xFF00) >> 8));
         messageBuffer.Add((byte)(cmd & 0x00FF));
         messageBuffer.Add((byte)((buf.Count & 0xFF00) >> 8));
@@ -68,9 +70,11 @@ public class FullDuplexProtocol
 
         messageBuffer.AddRange(crcBytes); // Add the CRC to the message buffer
 
+        /* Set size header */
+        SizeHeader = (UInt16)(messageBuffer.Count - buf.Count);
+
         return messageBuffer; // Return the final message buffer
     }
-
 
     public string ReceiveMessage()
     {

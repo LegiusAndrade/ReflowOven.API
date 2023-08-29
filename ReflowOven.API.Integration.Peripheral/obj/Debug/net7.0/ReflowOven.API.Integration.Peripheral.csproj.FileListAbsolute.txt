@@ -57,6 +57,13 @@ C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\Ref
 c:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.genruntimeconfig.cache
 c:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ref\ReflowOven.API.Integration.Peripheral.dll
 C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\System.Device.Gpio.dll
+C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.csproj.AssemblyReference.cache
+C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.AssemblyInfoInputs.cache
+C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.AssemblyInfo.cs
+C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.csproj.CoreCompileInputs.cache
+C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\appsettings.Development.json
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\appsettings.json
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\ReflowOven.API.Integration.Peripheral.exe
@@ -102,13 +109,6 @@ C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\runtimes\unix\lib\net7.0\System.IO.Ports.dll
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\runtimes\win\lib\net7.0\System.IO.Ports.dll
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\runtimes\win\lib\net7.0\System.ServiceProcess.ServiceController.dll
-C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.csproj.AssemblyReference.cache
-C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.AssemblyInfoInputs.cache
-C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.AssemblyInfo.cs
-C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.csproj.CoreCompileInputs.cache
-C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\staticwebassets\msbuild.ReflowOven.API.Integration.Peripheral.Microsoft.AspNetCore.StaticWebAssets.props
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\staticwebassets\msbuild.build.ReflowOven.API.Integration.Peripheral.props
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\staticwebassets\msbuild.buildMultiTargeting.ReflowOven.API.Integration.Peripheral.props
