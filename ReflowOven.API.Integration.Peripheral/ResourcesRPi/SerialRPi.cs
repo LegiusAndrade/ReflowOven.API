@@ -5,22 +5,25 @@ using ReflowOven.API.Integration.Peripheral.ResourcesRPi.Interfaces;
 
 using System;
 using System.IO.Ports;
+using System.Reflection;
 
 namespace ReflowOven.API.Integration.Peripheral.ResourcesRPi;
 
 public class SerialRPi
 {
 
-    private UInt128 countErrorTimeout;                                              // Counter for timeout errors
+    private UInt128 countErrorTimeoutSend;                                   // Counter for timeout errors
+    private UInt128 countErrorTimeoutReceivedACK;                            // Counter for timeout errors
 
-    readonly ILogger<BackgroundWorkerService> _logger;                              // Logging interface 
 
-    private SerialPort? _sp_config;                                                 // SerialPort object for communication
-    private readonly FullDuplexProtocol _protocol;                                  // Protocol handler object
+    readonly ILogger<BackgroundWorkerService> _logger;                       // Logging interface 
 
-    private readonly CRC16 _crc16Calculator = new CRC16();                          // CRC16 calculator object
+    private SerialPort? _sp_config;                                          // SerialPort object for communication
+    private readonly FullDuplexProtocol? _protocol;                          // Protocol handler object
 
-    private readonly object syncLock = new object();                                // Lock object for thread safety
+    private readonly CRC16 _crc16Calculator = new();                         // CRC16 calculator object
+
+    private readonly object syncLock = new();                                // Lock object for thread safety
 
     // Tokens and tasks for thread control
     private CancellationTokenSource cancellationTokenSource;
@@ -29,11 +32,13 @@ public class SerialRPi
 
     private readonly MessageManager messageManager = new MessageManager();
 
+    // Semaphore para sincronização assíncrona
+    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
-    public SerialRPi(ILogger<BackgroundWorkerService> logger)
+    public SerialRPi(ILogger<BackgroundWorkerService> logger, FullDuplexProtocol protocol)
     {
         _logger = logger;
-        _protocol = new FullDuplexProtocol();
+        _protocol = protocol;
 
         messageManager.ProtocolVersion = _protocol.PROTOCOL_VERSION;
         messageManager.TypeCRC = "CRC16"; //Todo poderia fazer o seguinte, um codigo para inicializar o protocolo e nele dizer qual tipo de crc que vai usar
@@ -59,7 +64,7 @@ public class SerialRPi
         };
 
         // Handler data received
-        _sp_config.DataReceived += new SerialDataReceivedEventHandler(OnDataReceived);
+        _sp_config.DataReceived += new SerialDataReceivedEventHandler(OnDataReceivedAsync);
 
         try
         {
@@ -102,13 +107,13 @@ public class SerialRPi
             _logger.LogError("The message size exceeds the maximum allowed buffer size.");
             return;
         }
-        lock (syncLock)  
+        lock (syncLock)
         {
             // Compile the message with the protocol and set the state to READY_FOR_SEND
             MessageInfo newMessage = new MessageInfo()
             {
                 State = MessageState.READY_FOR_SEND,
-                NumTries = 0,
+                CountAttemptsSendTx = 0,
                 Cmd = cmd,
                 Timeout = MessageConstants.TimeoutAck, // Define a 5-second timeout, for example
                 Buffer = _protocol.SendMessageProtocol(buffer, cmd, _crc16Calculator.CalculateCRC16Wrapper),
@@ -149,7 +154,10 @@ public class SerialRPi
             {
                 // Transmit the message here
                 _logger.LogInformation("Sending a message...");
-                _sp_config!.Write(messageToSend.Buffer.ToArray(), 0, messageToSend.Buffer.Count);
+                await Task.Run(() =>
+                {
+                    _sp_config!.Write(messageToSend.Buffer.ToArray(), 0, messageToSend.Buffer.Count);
+                }, token);
                 _logger.LogInformation("Message sent successfully.");
 
                 messageToSend.State = MessageState.SENT;
@@ -160,29 +168,105 @@ public class SerialRPi
     }
 
 
-    // Adicione este método na sua classe SerialRPi
-    private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
+    private async Task OnDataReceivedAsync(object sender, SerialDataReceivedEventArgs e)
     {
-        lock (syncLock) // Bloqueio para garantir a segurança do thread
+        await ProcessDataAsync(sender, e);
+
+    }
+    private async Task ProcessDataAsync(object sender, SerialDataReceivedEventArgs e)
+    {
+        await _semaphore.WaitAsync();
+
+        try
         {
-            try
+            SerialPort sp = (SerialPort)sender;
+            byte[] buffer = new byte[sp.BytesToRead];
+            sp.Read(buffer, 0, buffer.Length);
+
+            List<byte> buf = buffer.ToList();
+
+            var decodedMessage = _protocol?.ReceivedMessageProtocol(buf, _crc16Calculator.CalculateCRC16Wrapper);
+
+            // Log details of the decoded message only in the development environment (TODO: Ensure this only happens in the dev environment)
+            _logger.LogDebug("Decoded Message Details: State={State}, Cmd={Cmd}, SequenceNumber={SequenceNumber}, NumTries={NumTries}, Timeout={Timeout}, Buffer={Buffer}",
+                                         decodedMessage?.State,
+                                         decodedMessage?.Cmd,
+                                         decodedMessage?.SequenceNumber,
+                                         decodedMessage?.CountAttemptsSendTx,
+                                         decodedMessage?.Timeout,
+                                         decodedMessage?.Buffer != null ? BitConverter.ToString(decodedMessage.Buffer.ToArray()) : "null");
+
+            if (decodedMessage != null)
             {
-                SerialPort sp = (SerialPort)sender;
-                byte[] buffer = new byte[sp.BytesToRead];
-                sp.Read(buffer, 0, buffer.Length);
-
-                // TODO: Decodifique a mensagem aqui usando seu protocolo
-                // Exemplo: var decodedMessage = _protocol.ReceiveMessageProtocol(buffer);
-
-                _logger.LogInformation("Received data: {data}", BitConverter.ToString(buffer));
-
-                // TODO: Fazer algo com a mensagem decodificada
-                // Exemplo: ProcessReceivedMessage(decodedMessage);
+                ProcessDecodedMessage(decodedMessage);
             }
-            catch (Exception ex)
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error in received message: {message}", ex.Message);
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
+
+    }
+
+    private void ProcessDecodedMessage(MessageInfo decodedMessage)
+    {
+        // Attempt to find a matching message from the buffer based on SequenceNumber
+        var messageFound = messageManager.messageBuffer.FirstOrDefault(x => x.SequenceNumber == decodedMessage?.SequenceNumber);
+
+        // Check the type of the message received
+        if (decodedMessage?.TypeMessage == TypeMessage.MESSAGE_ACK)
+        {
+            // If ACK message received successfully, remove the corresponding message from the buffer
+            HandleAckMessage(decodedMessage, messageFound);
+        }
+        else
+        {
+            HandleNonAckMessage(decodedMessage, messageFound);
+        }
+    }
+
+
+    private void HandleAckMessage(MessageInfo decodedMessage, MessageInfo? messageFound)
+    {
+        if (decodedMessage?.State == MessageState.RECEIVED_SUCCESSFULL)
+        {
+            if (messageFound != null)
             {
-                _logger.LogError("Error receiving data: {message}", ex.Message);
+                messageManager.messageBuffer.Remove(messageFound); // Remove the object directly
             }
+        }
+    }
+
+    private void HandleNonAckMessage(MessageInfo? decodedMessage, MessageInfo? messageFound)
+    {
+        if (decodedMessage?.State == MessageState.RECEIVED_SUCCESSFULL) //New message for read
+        {
+            // Signal that a new message is available for reading (TODO: Add the message to a read buffer)
+        }
+
+        else if (decodedMessage?.State == MessageState.RECEIVED_CRC_ERROR && messageFound?.State == MessageState.SENT)
+        {
+            HandleCrcError(messageFound);
+        }
+    }
+
+    private void HandleCrcError(MessageInfo messageFound)
+    {
+        messageFound.State = MessageState.READY_FOR_SEND;
+
+        if (++messageFound.CountAttemptsReceivedACK > MessageConstants.MaxTentativeReceivedACK)
+        {
+            _logger.LogError("Message failed after maximum retry attempts for receveid ACK.");
+
+            // Increment the error timeout counter
+            countErrorTimeoutReceivedACK++;
+
+            // Safely mark this message for removal or remove immediately if safe
+            messageManager.messageBuffer.Remove(messageFound);
         }
     }
 
@@ -198,20 +282,20 @@ public class SerialRPi
                 {
                     if (messageInfo.State == MessageState.SENT)
                     {
-                        messageInfo.Timeout -= 10; 
+                        messageInfo.Timeout -= 10;
 
                         if (messageInfo.Timeout <= 0)
                         {
                             _logger.LogWarning("Message timeout. Retrying...");
                             messageInfo.State = MessageState.READY_FOR_SEND;
-                            messageInfo.NumTries++;
+                            messageInfo.CountAttemptsSendTx++;
 
-                            if (messageInfo.NumTries > MessageConstants.MaxTentatives)
+                            if (messageInfo.CountAttemptsSendTx > MessageConstants.MaxTentativeSendMessage)
                             {
                                 _logger.LogError("Message failed after maximum retry attempts.");
 
                                 // Increment the error timeout counter
-                                countErrorTimeout++;
+                                countErrorTimeoutSend++;
 
                                 // Safely mark this message for removal or remove immediately if safe
                                 messageManager.messageBuffer.Remove(messageInfo);
@@ -220,7 +304,7 @@ public class SerialRPi
                     }
                 }
             }
-            await Task.Delay(10, cancellationToken); 
+            await Task.Delay(10, cancellationToken);
         }
     }
 
