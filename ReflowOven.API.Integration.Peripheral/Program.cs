@@ -61,6 +61,9 @@ IMapper mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
 builder.Services.Configure<Settings>(configuration.GetSection("Settings"));
+builder.Services.Configure<RaspConfig>(configuration.GetSection("RaspConfig"));
+
+
 
 builder.Services.AddApiVersioning(options =>
 {

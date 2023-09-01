@@ -17,6 +17,25 @@
             LowSpeedFanOven,
             BadSignalWifi
         }
-    
+
+        public enum Commands : byte
+        {
+            I_AM_HERE = 1,
+            GET_STATUS = 5,
+            SEND_PROGRAM = 10,
+            SEND_CONFIGURATION,
+            SEND_SERIAL_NUMBER,
+            SEND_CALIBRATION_DATA,
+            
+            GET_FAULT = 30,
+
+            SAVE_CALIBRATION_VALUES = 50,
+
+            RESET_HOURMETER = 60,
+
+
+
+        }
+
     }
 }

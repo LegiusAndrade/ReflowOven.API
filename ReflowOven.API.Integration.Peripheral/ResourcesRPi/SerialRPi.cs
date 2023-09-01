@@ -1,9 +1,11 @@
-﻿using ReflowOven.API.Integration.Peripheral.HostedServices;
+﻿using Microsoft.Extensions.Options;
+using ReflowOven.API.Integration.Peripheral.HostedServices;
 using ReflowOven.API.Integration.Peripheral.ResourcesRPi.Checksum;
 using ReflowOven.API.Integration.Peripheral.ResourcesRPi.CommuncationProtocols;
 using ReflowOven.API.Integration.Peripheral.ResourcesRPi.Interfaces;
 
 using System;
+using System.Device.Gpio;
 using System.IO.Ports;
 using System.Reflection;
 
@@ -30,15 +32,19 @@ public class SerialRPi
     private Task sendingTask;
     private Task timeoutCheckingTask;
 
+    private readonly RaspConfig _raspConfig;
+
     private readonly MessageManager messageManager = new MessageManager();
 
     // Semaphore para sincronização assíncrona
     private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
-    public SerialRPi(ILogger<BackgroundWorkerService> logger, FullDuplexProtocol protocol)
+    public SerialRPi(ILogger<BackgroundWorkerService> logger, FullDuplexProtocol protocol, IOptions<RaspConfig> raspConfigOptions)
     {
         _logger = logger;
         _protocol = protocol;
+
+        _raspConfig = raspConfigOptions.Value;
 
         messageManager.ProtocolVersion = _protocol.PROTOCOL_VERSION;
         messageManager.TypeCRC = "CRC16"; //Todo poderia fazer o seguinte, um codigo para inicializar o protocolo e nele dizer qual tipo de crc que vai usar
@@ -168,11 +174,11 @@ public class SerialRPi
     }
 
 
-    private async Task OnDataReceivedAsync(object sender, SerialDataReceivedEventArgs e)
+    private void OnDataReceivedAsync(object sender, SerialDataReceivedEventArgs e)
     {
-        await ProcessDataAsync(sender, e);
-
+        Task.Run(() => ProcessDataAsync(sender, e));
     }
+
     private async Task ProcessDataAsync(object sender, SerialDataReceivedEventArgs e)
     {
         await _semaphore.WaitAsync();
@@ -212,7 +218,7 @@ public class SerialRPi
 
     }
 
-    private void ProcessDecodedMessage(MessageInfo decodedMessage)
+    private void ProcessDecodedMessage(MessageInfo? decodedMessage)
     {
         // Attempt to find a matching message from the buffer based on SequenceNumber
         var messageFound = messageManager.messageBuffer.FirstOrDefault(x => x.SequenceNumber == decodedMessage?.SequenceNumber);
@@ -225,12 +231,13 @@ public class SerialRPi
         }
         else
         {
+            // If message new, add buffer reading
             HandleNonAckMessage(decodedMessage, messageFound);
         }
     }
 
 
-    private void HandleAckMessage(MessageInfo decodedMessage, MessageInfo? messageFound)
+    private void HandleAckMessage(MessageInfo? decodedMessage, MessageInfo? messageFound)
     {
         if (decodedMessage?.State == MessageState.RECEIVED_SUCCESSFULL)
         {
@@ -239,13 +246,24 @@ public class SerialRPi
                 messageManager.messageBuffer.Remove(messageFound); // Remove the object directly
             }
         }
+        else if (decodedMessage?.State == MessageState.RECEIVED_CRC_ERROR)
+        {
+            HandleCrcError(messageFound);
+        }
     }
 
     private void HandleNonAckMessage(MessageInfo? decodedMessage, MessageInfo? messageFound)
     {
         if (decodedMessage?.State == MessageState.RECEIVED_SUCCESSFULL) //New message for read
         {
+            /* Toogle pin comm */
+            using var controller = new GpioController();
+            controller.OpenPin(_raspConfig.PinsConfig.LED_COMM, PinMode.Output);
+            controller.Toggle(_raspConfig.PinsConfig.LED_COMM);
+
+
             // Signal that a new message is available for reading (TODO: Add the message to a read buffer)
+            //TODO : SENd ACK for confirmation message
         }
 
         else if (decodedMessage?.State == MessageState.RECEIVED_CRC_ERROR && messageFound?.State == MessageState.SENT)
@@ -288,9 +306,8 @@ public class SerialRPi
                         {
                             _logger.LogWarning("Message timeout. Retrying...");
                             messageInfo.State = MessageState.READY_FOR_SEND;
-                            messageInfo.CountAttemptsSendTx++;
 
-                            if (messageInfo.CountAttemptsSendTx > MessageConstants.MaxTentativeSendMessage)
+                            if (++messageInfo.CountAttemptsSendTx > MessageConstants.MaxTentativeSendMessage)
                             {
                                 _logger.LogError("Message failed after maximum retry attempts.");
 

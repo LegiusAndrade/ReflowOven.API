@@ -1,3 +1,4 @@
+using ReflowOven.API.Integration.Peripheral.ResourcesRPi;
 using System.Device.Gpio;
 using System.IO.Ports;
 using System.Net.NetworkInformation;
@@ -9,71 +10,53 @@ public class BackgroundWorkerService : BackgroundService
     readonly ILogger<BackgroundWorkerService> _logger;
     readonly SerialPort sp;
 
-    public BackgroundWorkerService(ILogger<BackgroundWorkerService> logger)
+    private readonly SerialRPi _serialRPi;
+
+    private readonly RaspConfig _raspConfig;
+
+
+    public BackgroundWorkerService(ILogger<BackgroundWorkerService> logger,
+        SerialRPi serialRPi, RaspConfig raspConfig)
     {
         _logger = logger;
-        sp = new SerialPort("/dev/ttyS0")
+        _serialRPi = serialRPi;
+        _raspConfig = raspConfig;
+
+
+        sp = new SerialPort(_raspConfig.SerialConfig.SerialName)
         {
-            BaudRate = 115200,
+            BaudRate = _raspConfig.SerialConfig.BaudRate,
             DataBits = 8,
             Parity = Parity.None,
             StopBits = StopBits.One,
-            WriteTimeout = TimeSpan.FromSeconds(3).Seconds,
-            ReadTimeout = TimeSpan.FromMilliseconds(100).Seconds
+            WriteTimeout = TimeSpan.FromSeconds(3).Milliseconds,
+            ReadTimeout = TimeSpan.FromMilliseconds(100).Milliseconds
         };
 
-        // Handler data received
-        sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+        _serialRPi.InitSerial(sp);
     }
 
-    private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
-    {
-        SerialPort sPort = (SerialPort)sender;
-        string indata = sPort.ReadExisting();
-        _logger.LogInformation("Dados recebidos: {data}", indata);
-    }
-
-    public override Task StartAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            sp.Open();
-            _logger.LogInformation("Opened serial from communication PCB");
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(" Error in the open serial port: {message}", e.Message);
-        }
-
-        return base.StartAsync(cancellationToken);
-    }
-
-    public override Task StopAsync(CancellationToken cancellationToken)
-    {
-        sp.Close();
-        _logger.LogInformation("Closed serial from communication PCB");
-        return base.StopAsync(cancellationToken);
-    }
-
-
-    bool ledOn = true;
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            const int Pin1 = 6;
-            const int Pin2 = 13;
+
+            /* Toogle pin comm */
             using var controller = new GpioController();
+            controller.OpenPin(_raspConfig.PinsConfig.LED_STATUS, PinMode.Output);
+            controller.Toggle(_raspConfig.PinsConfig.LED_STATUS);
 
-            controller.OpenPin(Pin1, PinMode.Output);
-            controller.OpenPin(Pin2, PinMode.Output);
+            /* Enviar status de keep alive */
 
-            controller.Write(Pin1, ((ledOn) ? PinValue.Low : PinValue.High));
-            controller.Write(Pin2, ((ledOn) ? PinValue.High : PinValue.Low));
-            ledOn = !ledOn;
 
-            _logger.LogInformation("Worker running at:{time}",DateTimeOffset.Now);
-           await Task.Delay(1000,stoppingToken); //TODO: Quando ele dar um delay de 1000 ele vai ativar o stoppingToken, ver se não vai influencia no fechamento da serial
+            _logger.LogInformation("Worker running at:{time}", DateTimeOffset.Now);
+            await Task.Delay(1000); 
+        }
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            /* Verifica se tem mensagem nova */
+            //Trata mensagem recebida da PCB
+
         }
     }
 }
