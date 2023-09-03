@@ -108,7 +108,7 @@ public class SerialRPi
     public void SendMessage(List<byte> buffer, UInt16 cmd)
     {
 
-        if (buffer.Count > MessageConstants.MaxBuf - _protocol.SizeHeader)
+        if (buffer.Count > MessageConstants.MaxBuf - _protocol?.SizeHeader)
         {
             _logger.LogError("The message size exceeds the maximum allowed buffer size.");
             return;
@@ -122,7 +122,7 @@ public class SerialRPi
                 CountAttemptsSendTx = 0,
                 Cmd = cmd,
                 Timeout = MessageConstants.TimeoutAck, // Define a 5-second timeout, for example
-                Buffer = _protocol.SendMessageProtocol(buffer, cmd, _crc16Calculator.CalculateCRC16Wrapper),
+                Buffer = _protocol!.SendMessageProtocol(buffer, cmd, _crc16Calculator.CalculateCRC16Wrapper),
             };
 
             messageManager.messageBuffer.Add(newMessage);
@@ -248,7 +248,9 @@ public class SerialRPi
         }
         else if (decodedMessage?.State == MessageState.RECEIVED_CRC_ERROR)
         {
-            HandleCrcError(messageFound);
+            if (messageFound != null)
+                HandleCrcError(messageFound);
+
         }
     }
 

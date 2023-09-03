@@ -4,5 +4,20 @@
         <name>ReflowOven.API.Integration.Peripheral</name>
     </assembly>
     <members>
+        <member name="F:ReflowOven.API.Integration.Peripheral.HostedServices.BackgroundWorkerService.TOOGLE_LED">
+            <summary>
+            DEFINE SECTION
+            </summary>
+        </member>
+        <member name="F:ReflowOven.API.Integration.Peripheral.HostedServices.BackgroundWorkerService._logger">
+            <summary>
+            INSTANCES SECTION
+            </summary>
+        </member>
+        <member name="F:ReflowOven.API.Integration.Peripheral.HostedServices.BackgroundWorkerService.cntSendIAmHere">
+            <summary>
+            VARIABLES SECTION
+            </summary>
+        </member>
     </members>
 </doc>

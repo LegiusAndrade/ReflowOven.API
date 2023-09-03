@@ -6,6 +6,8 @@ using System.Reflection;
 using ReflowOvenAPI.ModelsDTO.Mappings;
 using ReflowOven.API.Integration.Peripheral;
 using ReflowOven.API.Integration.Peripheral.HostedServices;
+using ReflowOven.API.Integration.Peripheral.ResourcesRPi;
+using ReflowOven.API.Integration.Peripheral.ResourcesRPi.CommuncationProtocols;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOriginsCORS";
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,10 @@ configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: tr
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+//builder.Services.AddSingleton<RaspConfig>();
+builder.Services.AddSingleton<FullDuplexProtocol>();
+builder.Services.AddSingleton<SerialRPi>();
 builder.Services.AddHostedService<BackgroundWorkerService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

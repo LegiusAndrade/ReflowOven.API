@@ -2,10 +2,10 @@
 {
     public interface IStatusRPi
     {
-        public enum Status
+        public enum Status : byte
         {
-            WithoutConfig = 0,
-            Normal,
+            Normal = 0,
+            WithoutConfig,
             ErrorUnknown,
             UndervoltageAC,
             UndervoltageDC,

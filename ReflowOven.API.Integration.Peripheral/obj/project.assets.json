@@ -3084,24 +3084,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\lucas.silva\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\LuquiinhaS\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\lucas.silva\\Desktop\\git_Lucas\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
+      "projectUniqueName": "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
       "projectName": "ReflowOven.API.Integration.Peripheral",
-      "projectPath": "C:\\Users\\lucas.silva\\Desktop\\git_Lucas\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
-      "packagesPath": "C:\\Users\\lucas.silva\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\lucas.silva\\Desktop\\git_Lucas\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\obj\\",
+      "projectPath": "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
+      "packagesPath": "C:\\Users\\LuquiinhaS\\.nuget\\packages\\",
+      "outputPath": "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\lucas.silva\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\LuquiinhaS\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -3109,7 +3104,6 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

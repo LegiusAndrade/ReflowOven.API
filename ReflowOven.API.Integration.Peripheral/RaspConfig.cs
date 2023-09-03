@@ -3,7 +3,7 @@
 public class RaspConfig
 {
 
-    public required Pins PinsConfig { get; set; }
+    public required Pins PinsConfig { get; set; } 
     public required Serial SerialConfig { get; set; }
 
     public class Pins
@@ -16,8 +16,8 @@ public class RaspConfig
 
     public class Serial
     {
-        public UInt16 BaudRate { get; set; } = 9600;
-        public String SerialName { get; set; } = ""; 
+        public Int32 BaudRate { get; set; } = 9600;
+        public String SerialName { get; set; } = "/dev/ttyS0"; 
     }
 
 }

@@ -124,3 +124,11 @@ C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.pdb
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.genruntimeconfig.cache
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ref\ReflowOven.API.Integration.Peripheral.dll
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\System.IO.Ports.dll
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\runtimes\linux-arm\native\libSystem.IO.Ports.Native.so
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\runtimes\linux-arm64\native\libSystem.IO.Ports.Native.so
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\runtimes\linux-x64\native\libSystem.IO.Ports.Native.so
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\runtimes\osx-arm64\native\libSystem.IO.Ports.Native.dylib
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\runtimes\osx-x64\native\libSystem.IO.Ports.Native.dylib
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\runtimes\unix\lib\net7.0\System.IO.Ports.dll
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\bin\Debug\net7.0\runtimes\win\lib\net7.0\System.IO.Ports.dll
