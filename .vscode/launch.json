@@ -1,52 +1,28 @@
 {
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (Raspberry Pi)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "RaspberryPiDeploy",
-            "program": "dotnet",
-            "args": ["/home/pi/${workspaceFolderBasename}/${workspaceFolderBasename}.dll"],
-            "cwd": "/home/pi/${workspaceFolderBasename}",
-            "stopAtEntry": false,
-            "console": "internalConsole",
-            "pipeTransport": {
-                "pipeCwd": "${workspaceFolder}",
-                "pipeProgram": "ssh",
-                "pipeArgs": ["pi@172.17.0.150"],
-                "debuggerPath": "/home/pi/vsdbg/vsdbg"
-            }
-        },
-        {
-            // Use IntelliSense to find out which attributes exist for C# debugging
-            // Use hover for the description of the existing attributes
-            // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md.
-            "name": ".NET Core Launch (web)",
+            "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/ReflowOven.API.Integration.Peripheral.dll",
+            "program": "/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/ReflowOven.API.Integration.Peripheral.dll",
             "args": [],
             "cwd": "${workspaceFolder}/ReflowOven.API.Integration.Peripheral",
             "stopAtEntry": false,
-            // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
-            },
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
-            }
+            "console": "internalConsole"
         },
         {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
         }
+        
+        
+        
+
     ]
 }

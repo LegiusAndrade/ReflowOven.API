@@ -1,68 +1,14 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "RaspberryPiPublish",
-      "command": "sh",
-      "type": "shell",
-      "dependsOn": "build",
-      "windows": {
-        "command": "cmd",
-        "args": [
-          "/c",
-          "\"dotnet publish -r linux-arm64 --property:PublishDir=bin\\linux-arm64\\publish\\ --self-contained false\""
-        ],
-        "problemMatcher": []
-      }
-    },
-    {
-      "label": "RaspberryPiDeploy",
-      "type": "shell",
-      "dependsOn": "RaspberryPiPublish",
-      "presentation": {
-        "reveal": "always",
-        "panel": "new"
-      },
-      "windows": {
-        "command": "c:\\cwrsync\rsync -rvuz --rsh=\"c:\\cwrsync\\ssh\" --chmod=700 bin/linux-arm/publish/ pi@<Pi Host Name>:share/${workspaceFolderBasename}/"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "build",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "build",
-        "${workspaceFolder}/ReflowOven.API.Integration.Peripheral/ReflowOven.API.Integration.Peripheral.sln",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "publish",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "publish",
-        "${workspaceFolder}/ReflowOven.API.Integration.Peripheral/ReflowOven.API.Integration.Peripheral.sln",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "watch",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "watch",
-        "run",
-        "--project",
-        "${workspaceFolder}/ReflowOven.API.Integration.Peripheral/ReflowOven.API.Integration.Peripheral.sln"
-      ],
-      "problemMatcher": "$msCompile"
-    }
-  ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "dotnet",
+			"task": "build",
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build",
+			"label": "build"
+		}
+	]
 }

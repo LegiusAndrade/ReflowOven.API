@@ -16,10 +16,10 @@ public class BackgroundWorkerService : BackgroundService
     /// </summary>
 
     private const UInt16 TOOGLE_LED = 1000;             //1s
-    private const UInt16 TOOGLE_LED_WITH_ERROR = 250;   //250ms
+    private const UInt16 TOOGLE_LED_WITH_ERROR = 200;   //250ms
 
     private const UInt16 TIME_I_AM_HERE = 1000;         //1s
-        
+
     /// <summary>
     /// INSTANCES SECTION
     /// </summary>
@@ -40,7 +40,7 @@ public class BackgroundWorkerService : BackgroundService
     {
         public static IStatusRPi.Status Status { get; set; } = IStatusRPi.Status.WithoutConfig;
         public static UInt32 Cntblabla { get; set; } = 0;
-    } 
+    }
 
     public BackgroundWorkerService(ILogger<BackgroundWorkerService> logger,
         SerialRPi serialRPi, IOptions<RaspConfig> raspConfigOptions)
@@ -49,6 +49,10 @@ public class BackgroundWorkerService : BackgroundService
         _serialRPi = serialRPi;
         _raspConfig = raspConfigOptions.Value;
 
+
+        // Log or print the configuration values to see if they are correctly loaded
+        logger.LogInformation($"Serial Name: {_raspConfig.SerialConfig.SerialName}");
+        logger.LogInformation($"Baud Rate: {_raspConfig.SerialConfig.BaudRate}");
 
         sp = new SerialPort(_raspConfig.SerialConfig.SerialName)
         {
@@ -65,16 +69,18 @@ public class BackgroundWorkerService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        SetStateRPi(IStatusRPi.Status.Normal);
-        var Task10ms = Task.Run(async () => {
+        SetStateRPi(IStatusRPi.Status.LowSpeedFanOven);
+        var Task10ms = Task.Run(async () =>
+        {
             while (!stoppingToken.IsCancellationRequested)
             {
                 DoTask10ms();
-                await Task.Delay(10); 
+                await Task.Delay(10);
             }
         }, stoppingToken);
 
-        var TaskOther = Task.Run(async () => {
+        var TaskOther = Task.Run(async () =>
+        {
             while (!stoppingToken.IsCancellationRequested)
             {
                 DoTaskOther();
@@ -88,13 +94,13 @@ public class BackgroundWorkerService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
 
-           
+
 
             /* Enviar status de keep alive */
 
 
             _logger.LogInformation("Worker running at:{time}", DateTimeOffset.Now);
-            await Task.Delay(1000); 
+            await Task.Delay(1000);
         }
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -105,7 +111,7 @@ public class BackgroundWorkerService : BackgroundService
     }
 
 
-    
+
     private void DoTask10ms()
     {
         StatusLEDControl(SystemRPi.Status);
@@ -121,10 +127,10 @@ public class BackgroundWorkerService : BackgroundService
     private void DoTaskOther()
     {
         cntSendIAmHere++;
-        if(cntSendIAmHere == TIME_I_AM_HERE/100)
+        if (cntSendIAmHere == TIME_I_AM_HERE / 100)
         {
             List<byte> data = new List<byte>() { (byte)0x01 };
-            _serialRPi.SendMessage(data,(UInt16) IStatusRPi.Commands.I_AM_HERE);
+            //_serialRPi.SendMessage(data, (UInt16)IStatusRPi.Commands.I_AM_HERE);
             _logger.LogInformation("Send I Am Here at:{time}", DateTimeOffset.Now);
             cntSendIAmHere = 0;
         }
@@ -142,45 +148,83 @@ public class BackgroundWorkerService : BackgroundService
     private int blinkCount = 0;
     private int maxBlinkCount = 0;
     private LEDState currentLEDState = LEDState.Off;
+    private LEDPhase currentLEDPhase = LEDPhase.Blinking; // New variable to handle phase (Blinking or Waiting)
+    private UInt32 cntDuringWait = 0; // Counter to track the time during the waiting phase
+
+    private enum LEDPhase
+    {
+        Blinking,
+        Waiting
+    }
 
     private void StatusLEDControl(IStatusRPi.Status status)
     {
         cntUsedInStatusLed++;
 
-        UInt16 onTime = (status == IStatusRPi.Status.Normal) ? TOOGLE_LED : TOOGLE_LED_WITH_ERROR;
-        UInt16 offTime = TOOGLE_LED;
-        maxBlinkCount = (status == IStatusRPi.Status.Normal) ? 1 : (int)status;
-
-        if (cntUsedInStatusLed % (onTime / 10) == 0)
+        if (status == IStatusRPi.Status.Normal)
         {
-            // Handle LED toggling logic
-            if (currentLEDState == LEDState.Off)
-            {
-                if (blinkCount < maxBlinkCount)
-                {
-                    ToggleLED(PinValue.High);
-                    currentLEDState = LEDState.On;
-                    blinkCount++;
-                }
-            }
-            else
-            {
-                ToggleLED(PinValue.Low);
-                currentLEDState = LEDState.Off;
-
-                if (blinkCount >= maxBlinkCount)
-                {
-                    blinkCount = 0;  // Reset counter after reaching max
-                }
-            }
+            HandleNormalStatus();
+        }
+        else
+        {
+            HandleErrorStatus(status);
         }
 
-        // Reset the counter when it reaches the longer period
-        if (cntUsedInStatusLed >= offTime / 10)
+        // Reset the counter when it reaches 2 seconds (considering a 10ms tick)
+        if (cntUsedInStatusLed >= 200)
         {
             cntUsedInStatusLed = 0;
         }
+    }
+    private void HandleNormalStatus()
+    {
+        // For Normal status: Toggle LED every second (100 ticks of 10ms)
+        if (cntUsedInStatusLed % 100 == 0)
+        {
+            ToggleLED(currentLEDState == LEDState.Off ? PinValue.High : PinValue.Low);
+            currentLEDState = (currentLEDState == LEDState.Off) ? LEDState.On : LEDState.Off;
+        }
+    }
+    private void HandleErrorStatus(IStatusRPi.Status status)
+    {
+        UInt16 onTime = TOOGLE_LED_WITH_ERROR;
+        maxBlinkCount = (int)status;
 
+        if (currentLEDPhase == LEDPhase.Blinking)
+        {
+            if (cntUsedInStatusLed % (onTime / 10) == 0)
+            {
+                // Handle LED toggling logic
+                if (currentLEDState == LEDState.Off)
+                {
+                    if (blinkCount < maxBlinkCount)
+                    {
+                        ToggleLED(PinValue.High);
+                        currentLEDState = LEDState.On;
+                        blinkCount++;
+                    }
+                    else
+                    {
+                        currentLEDPhase = LEDPhase.Waiting; // Switch to Waiting phase after all blinks are done
+                    }
+                }
+                else
+                {
+                    ToggleLED(PinValue.Low);
+                    currentLEDState = LEDState.Off;
+                }
+            }
+        }
+        else if (currentLEDPhase == LEDPhase.Waiting)
+        {
+            cntDuringWait++;
+            if (cntDuringWait >= 100) // If 1 second (assuming your tick is 10ms)
+            {
+                cntDuringWait = 0;
+                blinkCount = 0;  // Reset counter to start blinking again
+                currentLEDPhase = LEDPhase.Blinking; // Switch back to Blinking phase after 1 second of waiting
+            }
+        }
     }
     private void ToggleLED(PinValue value)
     {
@@ -188,5 +232,6 @@ public class BackgroundWorkerService : BackgroundService
         controller.OpenPin(_raspConfig.PinsConfig.LED_STATUS, PinMode.Output);
         controller.Write(_raspConfig.PinsConfig.LED_STATUS, value);
     }
+
 
 }

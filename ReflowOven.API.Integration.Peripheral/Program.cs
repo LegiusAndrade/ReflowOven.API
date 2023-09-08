@@ -8,12 +8,19 @@ using ReflowOven.API.Integration.Peripheral;
 using ReflowOven.API.Integration.Peripheral.HostedServices;
 using ReflowOven.API.Integration.Peripheral.ResourcesRPi;
 using ReflowOven.API.Integration.Peripheral.ResourcesRPi.CommuncationProtocols;
+using System.Diagnostics;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOriginsCORS";
 var builder = WebApplication.CreateBuilder(args);
 
-var configuration = builder.Configuration;
-configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddEnvironmentVariables()
+    .AddCommandLine(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -66,16 +73,14 @@ var mappingConfig = new MapperConfiguration(mc =>
 IMapper mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
-builder.Services.Configure<Settings>(configuration.GetSection("Settings"));
-builder.Services.Configure<RaspConfig>(configuration.GetSection("RaspConfig"));
-
-
+builder.Services.Configure<Settings>(builder.Configuration.GetSection("Settings"));
+builder.Services.Configure<RaspConfig>(builder.Configuration.GetSection("RaspConfig"));
 
 builder.Services.AddApiVersioning(options =>
 {
-    options.AssumeDefaultVersionWhenUnspecified = true; // Assume a vers„o padr„o quando n„o for informado no request
+    options.AssumeDefaultVersionWhenUnspecified = true; // Assume a vers√£o padr√£o quando n√£o for informado no request
     options.DefaultApiVersion = new Asp.Versioning.ApiVersion(1,0);
-    options.ReportApiVersions = true; //Define no response do request a compatibilidade da vers„o
+    options.ReportApiVersions = true; //Define no response do request a compatibilidade da vers√£o
 });
 
 Log.Logger = new LoggerConfiguration()
@@ -122,7 +127,7 @@ app.UseHttpsRedirection();
 //Adiciona o uso do sistema de Cors
 app.UseCors(MyAllowSpecificOrigins);
 
-//Adiciona middleware que habilita a autorizaÁ„o
+//Adiciona middleware que habilita a autoriza√ß√£o
 app.UseAuthorization();
 
 app.MapControllers();
