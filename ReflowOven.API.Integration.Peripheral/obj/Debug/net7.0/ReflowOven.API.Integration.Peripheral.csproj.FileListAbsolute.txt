@@ -132,13 +132,6 @@ C:/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/run
 C:/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/runtimes/osx-x64/native/libSystem.IO.Ports.Native.dylib
 C:/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/runtimes/unix/lib/net7.0/System.IO.Ports.dll
 C:/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/runtimes/win/lib/net7.0/System.IO.Ports.dll
-/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.csproj.AssemblyReference.cache
-/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.GeneratedMSBuildEditorConfig.editorconfig
-/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.AssemblyInfoInputs.cache
-/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.AssemblyInfo.cs
-/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.csproj.CoreCompileInputs.cache
-/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.MvcApplicationPartsAssemblyInfo.cs
-/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.MvcApplicationPartsAssemblyInfo.cache
 /home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/appsettings.Development.json
 /home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/appsettings.json
 /home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/ReflowOven.API.Integration.Peripheral
@@ -184,6 +177,13 @@ C:/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/run
 /home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/runtimes/unix/lib/net7.0/System.IO.Ports.dll
 /home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/runtimes/win/lib/net7.0/System.IO.Ports.dll
 /home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/bin/Debug/net7.0/runtimes/win/lib/net7.0/System.ServiceProcess.ServiceController.dll
+/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.csproj.AssemblyReference.cache
+/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.GeneratedMSBuildEditorConfig.editorconfig
+/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.AssemblyInfoInputs.cache
+/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.AssemblyInfo.cs
+/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.csproj.CoreCompileInputs.cache
+/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.MvcApplicationPartsAssemblyInfo.cs
+/home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/ReflowOven.API.Integration.Peripheral.MvcApplicationPartsAssemblyInfo.cache
 /home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/staticwebassets/msbuild.ReflowOven.API.Integration.Peripheral.Microsoft.AspNetCore.StaticWebAssets.props
 /home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/staticwebassets/msbuild.build.ReflowOven.API.Integration.Peripheral.props
 /home/pi/git/ReflowOven.API/ReflowOven.API.Integration.Peripheral/obj/Debug/net7.0/staticwebassets/msbuild.buildMultiTargeting.ReflowOven.API.Integration.Peripheral.props

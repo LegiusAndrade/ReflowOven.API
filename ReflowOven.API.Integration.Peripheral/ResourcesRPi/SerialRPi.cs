@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace ReflowOven.API.Integration.Peripheral.ResourcesRPi;
 
-public class SerialRPi
+public class SerialRPi : IDisposable
 {
 
     private UInt128 countErrorTimeoutSend;                                   // Counter for timeout errors
@@ -28,7 +28,7 @@ public class SerialRPi
     private readonly object syncLock = new();                                // Lock object for thread safety
 
     // Tokens and tasks for thread control
-    private CancellationTokenSource cancellationTokenSource;
+    private CancellationTokenSource cancellationTokenSource_SendSerialMessageAsync, cancellationTokenSource_TimeoutChecker;
     private Task sendingTask;
     private Task timeoutCheckingTask;
 
@@ -50,9 +50,14 @@ public class SerialRPi
         messageManager.TypeCRC = "CRC16"; //Todo poderia fazer o seguinte, um codigo para inicializar o protocolo e nele dizer qual tipo de crc que vai usar
 
         // Initialize other fields, or you can make them nullable if that makes more sense
-        cancellationTokenSource = new CancellationTokenSource();
         sendingTask = Task.CompletedTask;  // Initialized with a completed task as a placeholder
         timeoutCheckingTask = Task.CompletedTask; // Initialized with a completed task as a placeholder
+        AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
+    }
+
+    private void OnProcessExit(object? sender, EventArgs e)
+    {
+        CloseSerial();
     }
 
     public bool InitSerial(SerialPort sp_config)
@@ -77,9 +82,10 @@ public class SerialRPi
             _sp_config.Open();
 
             // Initialize tasks
-            cancellationTokenSource = new CancellationTokenSource();
-            sendingTask = Task.Run(() => SendSerialMessageAsync(cancellationTokenSource.Token));
-            timeoutCheckingTask = Task.Run(() => TimeoutChecker(cancellationTokenSource.Token));
+            cancellationTokenSource_SendSerialMessageAsync = new CancellationTokenSource();
+            cancellationTokenSource_TimeoutChecker = new CancellationTokenSource();
+            sendingTask = Task.Run(() => SendSerialMessageAsync(cancellationTokenSource_SendSerialMessageAsync.Token));
+            timeoutCheckingTask = Task.Run(() => TimeoutChecker(cancellationTokenSource_TimeoutChecker.Token));
 
             success = true;
             _logger.LogInformation("Opened serial port for communication with PCB");
@@ -94,7 +100,8 @@ public class SerialRPi
     // Closes the serial port and cleans up resources
     public void CloseSerial()
     {
-        cancellationTokenSource?.Cancel();
+        cancellationTokenSource_SendSerialMessageAsync?.Cancel();
+        cancellationTokenSource_TimeoutChecker?.Cancel();
         sendingTask?.Wait();
         timeoutCheckingTask?.Wait();
 
@@ -132,44 +139,51 @@ public class SerialRPi
     // Task for sending messages from the queue
     private async Task SendSerialMessageAsync(CancellationToken token)
     {
-        _logger.LogInformation("SendSerialMessageAsync task started.");
-        while (true)
+        try
         {
-            // Check if there are messages in the buffer
-            if (messageManager.messageBuffer.Count == 0)
+            _logger.LogInformation("SendSerialMessageAsync task started.");
+            while (true)
             {
-                await Task.Delay(100, token); // Wait a bit before checking again
-                continue;
-            }
-
-            MessageInfo? messageToSend = null;
-
-            lock (syncLock)
-            {
-                foreach (var messageInfo in messageManager.messageBuffer)
+                // Check if there are messages in the buffer
+                if (messageManager.messageBuffer.Count == 0)
                 {
-                    if (messageInfo.State == MessageState.READY_FOR_SEND)
+                    await Task.Delay(100, token); // Wait a bit before checking again
+                    continue;
+                }
+
+                MessageInfo? messageToSend = null;
+
+                lock (syncLock)
+                {
+                    foreach (var messageInfo in messageManager.messageBuffer)
                     {
-                        messageToSend = messageInfo;
-                        break;
+                        if (messageInfo.State == MessageState.READY_FOR_SEND)
+                        {
+                            messageToSend = messageInfo;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (messageToSend != null)
-            {
-                // Transmit the message here
-                _logger.LogInformation("Sending a message...");
-                await Task.Run(() =>
+                if (messageToSend != null)
                 {
-                    _sp_config!.Write(messageToSend.Buffer.ToArray(), 0, messageToSend.Buffer.Count);
-                }, token);
-                _logger.LogInformation("Message sent successfully.");
+                    // Transmit the message here
+                    _logger.LogInformation("Sending a message...");
+                    await Task.Run(() =>
+                    {
+                        _sp_config!.Write(messageToSend.Buffer.ToArray(), 0, messageToSend.Buffer.Count);
+                    }, token);
+                    _logger.LogInformation("Message sent successfully.");
 
-                messageToSend.State = MessageState.SENT;
+                    messageToSend.State = MessageState.SENT;
 
-                await Task.Delay(100, token); // Wait for 100 milliseconds before next iteration
+                    await Task.Delay(100, token); // Wait for 100 milliseconds before next iteration
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Erro em SendSerialMessageAsync: {message}", ex.Message);
         }
     }
 
@@ -298,6 +312,7 @@ public class SerialRPi
         {
             lock (syncLock)
             {
+                var itemsToRemove = new List<MessageInfo>();
                 foreach (var messageInfo in messageManager.messageBuffer)
                 {
                     if (messageInfo.State == MessageState.SENT)
@@ -317,14 +332,26 @@ public class SerialRPi
                                 countErrorTimeoutSend++;
 
                                 // Safely mark this message for removal or remove immediately if safe
-                                messageManager.messageBuffer.Remove(messageInfo);
+                                itemsToRemove.Add(messageInfo);
+                                //messageManager.messageBuffer.Remove(messageInfo);
                             }
                         }
                     }
                 }
+                foreach (var item in itemsToRemove)
+                {
+                    messageManager.messageBuffer.Remove(item);
+                }
+
             }
-            await Task.Delay(10, cancellationToken);
+            await Task.Delay(10);
         }
+    }
+
+    public void Dispose()
+    {
+        AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;  // Desregistrar o evento
+        CloseSerial();
     }
 
 }

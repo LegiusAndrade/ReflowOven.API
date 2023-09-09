@@ -91,23 +91,23 @@ public class BackgroundWorkerService : BackgroundService
         await Task.WhenAll(Task10ms, TaskOther);
 
 
-        while (!stoppingToken.IsCancellationRequested)
-        {
+        // while (!stoppingToken.IsCancellationRequested)
+        // {
 
 
 
-            /* Enviar status de keep alive */
+        //     /* Enviar status de keep alive */
 
 
-            _logger.LogInformation("Worker running at:{time}", DateTimeOffset.Now);
-            await Task.Delay(1000);
-        }
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            /* Verifica se tem mensagem nova */
-            //Trata mensagem recebida da PCB
+        //     _logger.LogInformation("Worker running at:{time}", DateTimeOffset.Now);
+        //     await Task.Delay(1000);
+        // }
+        // while (!stoppingToken.IsCancellationRequested)
+        // {
+        //     /* Verifica se tem mensagem nova */
+        //     //Trata mensagem recebida da PCB
 
-        }
+        // }
     }
 
 
@@ -130,7 +130,7 @@ public class BackgroundWorkerService : BackgroundService
         if (cntSendIAmHere == TIME_I_AM_HERE / 100)
         {
             List<byte> data = new List<byte>() { (byte)0x01 };
-            //_serialRPi.SendMessage(data, (UInt16)IStatusRPi.Commands.I_AM_HERE);
+            _serialRPi.SendMessage(data, (UInt16)IStatusRPi.Commands.I_AM_HERE);
             _logger.LogInformation("Send I Am Here at:{time}", DateTimeOffset.Now);
             cntSendIAmHere = 0;
         }
