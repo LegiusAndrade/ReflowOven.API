@@ -14,7 +14,7 @@ public enum MessageState
 public class MessageInfo
 {
     public MessageState State { get; set; }
-    public UInt16 Cmd { get; set; }
+    public byte Cmd { get; set; }
     public UInt16 SequenceNumber { get; set; }
     public UInt16? CountAttemptsSendTx { get; set; }
     public UInt16? CountAttemptsReceivedACK { get; set; }

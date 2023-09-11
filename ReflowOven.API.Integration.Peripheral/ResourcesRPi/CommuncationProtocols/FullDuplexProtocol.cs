@@ -43,7 +43,7 @@ public class FullDuplexProtocol
     }
 
     // Method to send message according to the protocol
-    public List<byte> SendMessageProtocol(List<byte> buf, UInt16 cmd, Func<List<byte>, object> calculateCRC)
+    public List<byte> SendMessageProtocol(List<byte> buf, byte cmd, Func<List<byte>, object> calculateCRC)
     {
         List<byte> messageBuffer = new()
         {
@@ -53,8 +53,7 @@ public class FullDuplexProtocol
             (byte)TypeMessage.MESSAGE_SEND,
             (byte)((sequenceNumber & 0xFF00) >> 8),
             (byte)(sequenceNumber & 0x00FF),
-            (byte)((cmd & 0xFF00) >> 8),
-            (byte)(cmd & 0x00FF),
+            (byte)cmd,
             (byte)((buf.Count & 0xFF00) >> 8),
             (byte)(buf.Count & 0x00FF)
         };
@@ -106,8 +105,8 @@ public class FullDuplexProtocol
         byte protocolVersion = buf[2];
         TypeMessage typeMessage = (TypeMessage)buf[3]; // Included the TypeMessage
         UInt16 sequenceNumber = (UInt16)((buf[4] << 8) | buf[5]);
-        UInt16 cmd = (UInt16)((buf[6] << 8) | buf[7]);
-        UInt16 dataSize = (UInt16)((buf[8] << 8) | buf[9]);
+        byte cmd = buf[6];
+        UInt16 dataSize = (UInt16)((buf[7] << 8) | buf[8]);
 
         // Get the last two bytes (received CRC)
         UInt16 receivedCRC = (UInt16)((buf[buf.Count - 2] << 8) | buf[buf.Count - 1]);

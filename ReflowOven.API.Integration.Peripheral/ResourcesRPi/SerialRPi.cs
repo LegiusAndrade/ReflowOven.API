@@ -112,7 +112,7 @@ public class SerialRPi : IDisposable
     }
 
     // Sends a message to the buffer
-    public void SendMessage(List<byte> buffer, UInt16 cmd)
+    public void SendMessage(List<byte> buffer, byte cmd)
     {
 
         if (buffer.Count > MessageConstants.MaxBuf - _protocol?.SizeHeader)
