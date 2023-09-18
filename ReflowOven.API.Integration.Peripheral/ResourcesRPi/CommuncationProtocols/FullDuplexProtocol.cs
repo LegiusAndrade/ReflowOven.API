@@ -13,7 +13,7 @@ public class FullDuplexProtocol
     readonly ILogger<BackgroundWorkerService> _logger;
 
     private const UInt16 MESSAGE_ID_SEND = 0xBEBE;   // Protocol init message for send
-    public byte PROTOCOL_VERSION = 100;              // Protocol version: 1.00
+    public byte VERSION_PROTOCOL = 100;              // Protocol version: 1.00
 
     public UInt16 SizeHeader { get; private set; }
 
@@ -43,21 +43,19 @@ public class FullDuplexProtocol
     }
 
     // Method to send message according to the protocol
-    public List<byte> SendMessageProtocol(List<byte> buf, byte cmd, Func<List<byte>, object> calculateCRC)
+    public PacketMessage SendMessageProtocol(List<byte> buf, byte cmd, Func<List<byte>, object> calculateCRC)
     {
-        List<byte> messageBuffer = new()
+        PacketMessage messagePacket = new()
         {
-            (byte)((MESSAGE_ID_SEND & 0xFF00) >> 8),
-            (byte)(MESSAGE_ID_SEND & 0x00FF),
-            PROTOCOL_VERSION,
-            (byte)TypeMessage.MESSAGE_SEND,
-            (byte)((sequenceNumber & 0xFF00) >> 8),
-            (byte)(sequenceNumber & 0x00FF),
-            (byte)cmd,
-            (byte)((buf.Count & 0xFF00) >> 8),
-            (byte)(buf.Count & 0x00FF)
+            Header = MESSAGE_ID_SEND,
+            VersionProtocol = VERSION_PROTOCOL,
+            TypeMessage = TypeMessage.MESSAGE_SEND,
+            SequenceNumber = sequenceNumber,
+            Cmd = cmd,
+            Len = (UInt16)buf.Count,
         };
-        messageBuffer.AddRange(buf); // Add data
+        messagePacket.Message.AddRange(buf); // Add data
+
 
         IncrementSequenceNumber(); // Increment the sequence number
 
@@ -125,7 +123,7 @@ public class FullDuplexProtocol
         }
 
         // Check if the message follows the protocol
-        if (messageId != MESSAGE_ID_SEND || protocolVersion != PROTOCOL_VERSION)
+        if (messageId != MESSAGE_ID_SEND || protocolVersion != VERSION_PROTOCOL)
         {
             _logger.LogError("Message does not follow protocol");
             return null;

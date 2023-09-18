@@ -1,3 +1,3 @@
 ﻿<Project>
-  <Import Project="../build/ReflowOven.API.Integration.Peripheral.props" />
+  <Import Project="..\build\ReflowOven.API.Integration.Peripheral.props" />
 </Project>

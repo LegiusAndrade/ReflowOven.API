@@ -46,7 +46,7 @@ public class SerialRPi : IDisposable
 
         _raspConfig = raspConfigOptions.Value;
 
-        messageManager.ProtocolVersion = _protocol.PROTOCOL_VERSION;
+        messageManager.ProtocolVersion = _protocol.VERSION_PROTOCOL;
         messageManager.TypeCRC = "CRC16"; //Todo poderia fazer o seguinte, um codigo para inicializar o protocolo e nele dizer qual tipo de crc que vai usar
 
         // Initialize other fields, or you can make them nullable if that makes more sense
@@ -129,7 +129,7 @@ public class SerialRPi : IDisposable
                 CountAttemptsSendTx = 0,
                 Cmd = cmd,
                 Timeout = MessageConstants.TimeoutAck, // Define a 5-second timeout, for example
-                Buffer = _protocol!.SendMessageProtocol(buffer, cmd, _crc16Calculator.CalculateCRC16Wrapper),
+                PacketMessage = _protocol!.SendMessageProtocol(buffer, cmd, _crc16Calculator.CalculateCRC16Wrapper),
             };
 
             messageManager.messageBuffer.Add(newMessage);
