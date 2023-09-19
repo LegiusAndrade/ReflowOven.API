@@ -21,7 +21,7 @@ public class PacketMessage
     public Byte Cmd { get; set; }
     public UInt16 Len { get; set; }
     public UInt32? CRC { get; set; }
-    public List<Byte> Message { get; private set; } = new List<Byte>();
+    public List<Byte> Message { get; set; } = new List<Byte>();
 }
 
 public class MessageInfo

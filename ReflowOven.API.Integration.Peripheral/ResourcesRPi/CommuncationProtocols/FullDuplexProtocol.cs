@@ -43,12 +43,12 @@ public class FullDuplexProtocol
         }
     }
 
-    public void SetSizeHeader (string TypeCRC)
+    public void SetSizeHeader(string TypeCRC)
     {
         UInt16 SizeCRCReal = 0;
         CRC16 crc16 = new();
 
-        if(TypeCRC == "CRC16")
+        if (TypeCRC == "CRC16")
         {
             SizeCRCReal = crc16.GetSizeCRC16();
         }
@@ -61,31 +61,30 @@ public class FullDuplexProtocol
             throw new InvalidOperationException("Unsupported CRC type"); // Throw an exception for unsupported types
         }
 
-        // Tamanho total da classe PacketMessage
-        int totalSize = Marshal.SizeOf(typeof(PacketMessage));
-
-        // Tamanho do campo Message (que é uma lista)
-        int messageSize = Marshal.SizeOf(typeof(List<byte>));
-
-        // Obtém o tipo do campo CRC dinamicamente pelo nome
-        Type crcType = typeof(PacketMessage).GetProperty("CRC")!.PropertyType;
-
-        // Calcula o tamanho do campo CRC com base em seu tipo
-        int crcSizeType = Marshal.SizeOf(crcType);
+        int SizeHeaderWithoutCRC = 0;
+        foreach (var prop in typeof(PacketMessage).GetProperties())
+        {
+            if (prop.Name == "Header" || prop.Name == "VersionProtocol"
+                || prop.Name == "SequenceNumber" || prop.Name == "Cmd" || prop.Name == "Len")
+            {
+                SizeHeaderWithoutCRC += Marshal.SizeOf(prop.PropertyType);
+            }
+        }
+        SizeHeaderWithoutCRC += sizeof(TypeMessage);
 
         // Tamanho dos campos da classe PacketMessage exceto a lista Message e CRC
-        int size = totalSize - messageSize - crcSizeType + SizeCRCReal;
+        int size = SizeHeaderWithoutCRC + SizeCRCReal;
 
         SizeHeader = (UInt16)size;
     }
     public List<byte> PacketMessageToBytes(PacketMessage packet, bool ignoreCRC = true)
     {
-        List<byte> bytes = new List<byte>();
+        List<byte> bytes = new();
 
         // Convert each property to bytes and add to the list
         bytes.AddRange(BitConverter.GetBytes(packet.Header));
         bytes.AddRange(BitConverter.GetBytes(packet.VersionProtocol));
-        bytes.AddRange(BitConverter.GetBytes((UInt16)packet.TypeMessage));  // Assuming TypeMessage is an enum of type UInt16
+        bytes.Add((byte)packet.TypeMessage);  // Assuming TypeMessage is an enum of type UInt16
         bytes.AddRange(BitConverter.GetBytes(packet.SequenceNumber));
         bytes.Add(packet.Cmd);
         bytes.AddRange(BitConverter.GetBytes(packet.Len));
@@ -123,9 +122,10 @@ public class FullDuplexProtocol
         UInt32 crcBytes;
 
         // Check the type of CRC returned and cast it to appropriate type
-        if (crcObject is UInt16 ) // For CRC16
+        Console.WriteLine($"O tipo de crcObject é: {crcObject.GetType().Name}");
+        if (crcObject is UInt16) // For CRC16
         {
-            crcBytes = (UInt32)crcObject;
+            crcBytes = Convert.ToUInt32(crcObject);
         }
         else
         {
@@ -148,9 +148,10 @@ public class FullDuplexProtocol
             _logger.LogError("Message corrupted or incomplete, contains only {0} bytes", buf.Count);
             return null;
         }
-        MessageInfo receivedMessage = new();
-
-         receivedMessage.PacketMessage = Utils.DeserializeFromBytes<PacketMessage>(buf.ToArray());
+        MessageInfo receivedMessage = new()
+        {
+            PacketMessage = DeserializeFromBytes(buf.ToArray())
+        };
 
         // Unpack the message bytes into relevant fields
         //UInt16 messageId = (UInt16)((buf[0] << 8) | buf[1]);
@@ -188,5 +189,28 @@ public class FullDuplexProtocol
         receivedMessage.State = CRC_Ok ? MessageState.RECEIVED_SUCCESSFULL : MessageState.RECEIVED_CRC_ERROR;
 
         return receivedMessage;
+    }
+
+
+    public static PacketMessage DeserializeFromBytes(byte[] data)
+    {
+        int offset = 0;
+
+        PacketMessage packet = new PacketMessage
+        {
+            Header = BitConverter.ToUInt16(data, offset),
+            VersionProtocol = BitConverter.ToUInt16(data, offset += 2),
+            TypeMessage = (TypeMessage)BitConverter.ToChar(data, offset += 2),
+            SequenceNumber = BitConverter.ToUInt16(data, offset += 2),
+            Cmd = data[offset += 2],
+            Len = BitConverter.ToUInt16(data, offset += 1),
+            CRC = BitConverter.ToUInt32(data, offset += 2)
+        };
+
+        offset += 2;  // Moving past the UInt16 size of CRC. TODO melhorar
+
+        packet.Message = data.Skip(offset).Take(packet.Len).ToList();
+
+        return packet;
     }
 }

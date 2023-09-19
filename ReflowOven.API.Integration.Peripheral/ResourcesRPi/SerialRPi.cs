@@ -174,8 +174,42 @@ public class SerialRPi : IDisposable
                     _logger.LogInformation("Sending a message...");
                     await Task.Run(() =>
                     {
-                        byte[] byteList;
-                        byteList = Utils.SerializeToBytes(messageToSend.PacketMessage);
+                        byte[] byteListHeader, byteListVersionProtocol, byteListTypeMessage, byteListCmd, byteListLen, byteListSequenceNumber, byteListMessage, byteListCRC;
+
+                        byteListHeader = Utils.GetBytes(messageToSend.PacketMessage.Header);
+                        byteListVersionProtocol = Utils.GetBytes(messageToSend.PacketMessage.VersionProtocol);
+                        byteListTypeMessage = Utils.GetBytes((char)messageToSend.PacketMessage.TypeMessage);
+                        byteListSequenceNumber = Utils.GetBytes(messageToSend.PacketMessage.SequenceNumber);
+                        byteListCmd = Utils.GetBytes(messageToSend.PacketMessage.Cmd);
+                        byteListLen = Utils.GetBytes(messageToSend.PacketMessage.Len);
+
+                        if (messageManager.TypeCRC == "CRC16")
+                        {
+                            byteListCRC = Utils.GetBytes((UInt16)messageToSend.PacketMessage.CRC!.Value);
+
+                        }
+                        else if (messageManager.TypeCRC == "CRC32")
+                        {
+                            byteListCRC = Utils.GetBytes((UInt32)messageToSend.PacketMessage.CRC!.Value);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Unsupported CRC type"); // Throw an exception for unsupported types
+                        }
+                        byteListMessage = messageToSend.PacketMessage.Message.ToArray();
+
+                        byte[] byteList = new byte[][]
+                        {
+                            byteListHeader,
+                            byteListVersionProtocol,
+                            byteListTypeMessage,
+                            byteListSequenceNumber,
+                            byteListCmd,
+                            byteListLen,
+                            byteListMessage,
+                            byteListCRC
+                        }
+                        .SelectMany(b => b).ToArray();
 
                         _sp_config!.Write(byteList, 0, byteList.Length);
                     }, token);

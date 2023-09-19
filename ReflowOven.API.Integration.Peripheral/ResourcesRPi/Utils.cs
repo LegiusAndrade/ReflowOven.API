@@ -1,17 +1,58 @@
-﻿using System.Text.Json;
+﻿using ReflowOven.API.Integration.Peripheral.ResourcesRPi.Interfaces;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
 
 namespace ReflowOven.API.Integration.Peripheral.ResourcesRPi;
 
 public class Utils
 {
-
-    public static byte[] SerializeToBytes<T>(T obj)
+    public static byte[] GetBytes(bool value, bool littleEndian = false)
     {
-        return JsonSerializer.SerializeToUtf8Bytes(obj);
+        return ReverseAsNeeded(BitConverter.GetBytes(value), littleEndian);
     }
 
-    public static T DeserializeFromBytes<T>(byte[] bytes)
+    public static byte[] GetBytes(char value, bool littleEndian = false)
     {
-        return JsonSerializer.Deserialize<T>(bytes)!;
+        return ReverseAsNeeded(BitConverter.GetBytes(value), littleEndian);
+    }
+    public static byte[] GetBytes(double value, bool littleEndian = false)
+    {
+        return ReverseAsNeeded(BitConverter.GetBytes(value), littleEndian);
+    }
+    public static byte[] GetBytes(float value, bool littleEndian = false)
+    {
+        return ReverseAsNeeded(BitConverter.GetBytes(value), littleEndian);
+    }
+    public static byte[] GetBytes(int value, bool littleEndian = false)
+    {
+        return ReverseAsNeeded(BitConverter.GetBytes(value), littleEndian);
+    }
+    public static byte[] GetBytes(long value, bool littleEndian = false)
+    {
+        return ReverseAsNeeded(BitConverter.GetBytes(value), littleEndian);
+    }
+    public static byte[] GetBytes(short value, bool littleEndian = false)
+    {
+        return ReverseAsNeeded(BitConverter.GetBytes(value), littleEndian);
+    }
+    public static byte[] GetBytes(uint value, bool littleEndian = false)
+    {
+        return ReverseAsNeeded(BitConverter.GetBytes(value), littleEndian);
+    }
+    public static byte[] GetBytes(ulong value, bool littleEndian = false)
+    {
+        return ReverseAsNeeded(BitConverter.GetBytes(value), littleEndian);
+    }
+    public static byte[] GetBytes(ushort value, bool littleEndian = false)
+    {
+        return ReverseAsNeeded(BitConverter.GetBytes(value), littleEndian);
+    }
+
+    private static byte[] ReverseAsNeeded(byte[] bytes, bool wantsLittleEndian)
+    {
+        if (wantsLittleEndian == BitConverter.IsLittleEndian)
+            return bytes;
+        else
+            return (byte[])bytes.Reverse().ToArray();
     }
 }
