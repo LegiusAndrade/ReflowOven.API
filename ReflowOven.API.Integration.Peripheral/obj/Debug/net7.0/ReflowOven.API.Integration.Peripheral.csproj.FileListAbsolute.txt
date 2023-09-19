@@ -266,3 +266,14 @@ C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.pdb
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.genruntimeconfig.cache
 C:\Users\lucas.silva\Desktop\git_Lucas\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ref\ReflowOven.API.Integration.Peripheral.dll
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.csproj.AssemblyReference.cache
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.GeneratedMSBuildEditorConfig.editorconfig
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.AssemblyInfoInputs.cache
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.AssemblyInfo.cs
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.csproj.CoreCompileInputs.cache
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.MvcApplicationPartsAssemblyInfo.cs
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.MvcApplicationPartsAssemblyInfo.cache
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.dll
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\refint\ReflowOven.API.Integration.Peripheral.dll
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.xml
+C:\git\ReflowOven.API\ReflowOven.API.Integration.Peripheral\obj\Debug\net7.0\ReflowOven.API.Integration.Peripheral.pdb

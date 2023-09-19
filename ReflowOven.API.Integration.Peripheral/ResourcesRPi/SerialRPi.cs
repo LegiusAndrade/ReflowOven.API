@@ -47,7 +47,8 @@ public class SerialRPi : IDisposable
         _raspConfig = raspConfigOptions.Value;
 
         messageManager.ProtocolVersion = _protocol.VERSION_PROTOCOL;
-        messageManager.TypeCRC = "CRC16"; //Todo poderia fazer o seguinte, um codigo para inicializar o protocolo e nele dizer qual tipo de crc que vai usar
+
+        SetCRC("CRC16");
 
         // Initialize other fields, or you can make them nullable if that makes more sense
         sendingTask = Task.CompletedTask;  // Initialized with a completed task as a placeholder
@@ -127,12 +128,11 @@ public class SerialRPi : IDisposable
             {
                 State = MessageState.READY_FOR_SEND,
                 CountAttemptsSendTx = 0,
-                Cmd = cmd,
                 Timeout = MessageConstants.TimeoutAck, // Define a 5-second timeout, for example
                 PacketMessage = _protocol!.SendMessageProtocol(buffer, cmd, _crc16Calculator.CalculateCRC16Wrapper),
             };
 
-            messageManager.messageBuffer.Add(newMessage);
+            messageManager.MessageBuffer.Add(newMessage);
         }
     }
 
@@ -145,7 +145,7 @@ public class SerialRPi : IDisposable
             while (true)
             {
                 // Check if there are messages in the buffer
-                if (messageManager.messageBuffer.Count == 0)
+                if (messageManager.MessageBuffer.Count == 0)
                 {
                     await Task.Delay(100, token); // Wait a bit before checking again
                     continue;
@@ -155,7 +155,7 @@ public class SerialRPi : IDisposable
 
                 lock (syncLock)
                 {
-                    foreach (var messageInfo in messageManager.messageBuffer)
+                    foreach (var messageInfo in messageManager.MessageBuffer)
                     {
                         if (messageInfo.State == MessageState.READY_FOR_SEND)
                         {
@@ -171,7 +171,10 @@ public class SerialRPi : IDisposable
                     _logger.LogInformation("Sending a message...");
                     await Task.Run(() =>
                     {
-                        _sp_config!.Write(messageToSend.Buffer.ToArray(), 0, messageToSend.Buffer.Count);
+                        byte[] byteList;
+                        byteList = Utils.SerializeToBytes(messageToSend.PacketMessage);
+
+                        _sp_config!.Write(byteList, 0, byteList.Length);
                     }, token);
                     _logger.LogInformation("Message sent successfully.");
 
@@ -235,7 +238,7 @@ public class SerialRPi : IDisposable
     private void ProcessDecodedMessage(MessageInfo? decodedMessage)
     {
         // Attempt to find a matching message from the buffer based on SequenceNumber
-        var messageFound = messageManager.messageBuffer.FirstOrDefault(x => x.SequenceNumber == decodedMessage?.SequenceNumber);
+        var messageFound = messageManager.MessageBuffer.FirstOrDefault(x => x.SequenceNumber == decodedMessage?.SequenceNumber);
 
         // Check the type of the message received
         if (decodedMessage?.TypeMessage == TypeMessage.MESSAGE_ACK)
@@ -257,7 +260,7 @@ public class SerialRPi : IDisposable
         {
             if (messageFound != null)
             {
-                messageManager.messageBuffer.Remove(messageFound); // Remove the object directly
+                messageManager.MessageBuffer.Remove(messageFound); // Remove the object directly
             }
         }
         else if (decodedMessage?.State == MessageState.RECEIVED_CRC_ERROR)
@@ -300,7 +303,7 @@ public class SerialRPi : IDisposable
             countErrorTimeoutReceivedACK++;
 
             // Safely mark this message for removal or remove immediately if safe
-            messageManager.messageBuffer.Remove(messageFound);
+            messageManager.MessageBuffer.Remove(messageFound);
         }
     }
 
@@ -313,7 +316,7 @@ public class SerialRPi : IDisposable
             lock (syncLock)
             {
                 var itemsToRemove = new List<MessageInfo>();
-                foreach (var messageInfo in messageManager.messageBuffer)
+                foreach (var messageInfo in messageManager.MessageBuffer)
                 {
                     if (messageInfo.State == MessageState.SENT)
                     {
@@ -340,7 +343,7 @@ public class SerialRPi : IDisposable
                 }
                 foreach (var item in itemsToRemove)
                 {
-                    messageManager.messageBuffer.Remove(item);
+                    messageManager.MessageBuffer.Remove(item);
                 }
 
             }
@@ -348,6 +351,23 @@ public class SerialRPi : IDisposable
         }
     }
 
+    private void SetCRC(string TypeCRC)
+    {
+        if (TypeCRC == "CRC16")
+        {
+            messageManager.TypeCRC = "CRC16"; //Todo poderia fazer o seguinte, um codigo para inicializar o protocolo e nele dizer qual tipo de crc que vai usar
+        }
+        else if (TypeCRC == "CRC32")
+        {
+            messageManager.TypeCRC = "CRC32";
+        }
+        else
+        {
+            throw new InvalidOperationException("Unsupported CRC type"); // Throw an exception for unsupported types
+        }
+
+        _protocol?.SetSizeHeader(messageManager.TypeCRC);
+    }
     public void Dispose()
     {
         AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;  // Desregistrar o evento

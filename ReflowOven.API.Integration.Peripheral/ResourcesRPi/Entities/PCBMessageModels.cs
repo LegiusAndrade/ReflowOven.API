@@ -20,7 +20,7 @@ public class PacketMessage
     public UInt16 SequenceNumber { get; set; }
     public Byte Cmd { get; set; }
     public UInt16 Len { get; set; }
-    public UInt32 CRC { get; set; }
+    public UInt32? CRC { get; set; }
     public List<Byte> Message { get; private set; } = new List<Byte>();
 }
 
@@ -40,7 +40,7 @@ public enum TypeMessage : Byte
 
 public class MessageManager
 {
-    public List<MessageInfo> messageBuffer { get; set; } = new List<MessageInfo>();
+    public List<MessageInfo> MessageBuffer { get; set; } = new List<MessageInfo>();
     public UInt16 ProtocolVersion { get; set; }
     public string? TypeCRC { get; set; }
 }

@@ -35,4 +35,9 @@ public class CRC16
         // Return the computed CRC value
         return crc;
     }
+
+    public UInt16 GetSizeCRC16 ()
+    {
+        return sizeof(UInt16);
+    }
 }
