@@ -68,7 +68,7 @@ public class FullDuplexProtocol
         int messageSize = Marshal.SizeOf(typeof(List<byte>));
 
         // Obtém o tipo do campo CRC dinamicamente pelo nome
-        Type crcType = typeof(PacketMessage).GetProperty("CRC").PropertyType;
+        Type crcType = typeof(PacketMessage).GetProperty("CRC")!.PropertyType;
 
         // Calcula o tamanho do campo CRC com base em seu tipo
         int crcSizeType = Marshal.SizeOf(crcType);
@@ -78,7 +78,7 @@ public class FullDuplexProtocol
 
         SizeHeader = (UInt16)size;
     }
-    public List<byte> PacketMessageToBytes(PacketMessage packet)
+    public List<byte> PacketMessageToBytes(PacketMessage packet, bool ignoreCRC = true)
     {
         List<byte> bytes = new List<byte>();
 
@@ -89,7 +89,7 @@ public class FullDuplexProtocol
         bytes.AddRange(BitConverter.GetBytes(packet.SequenceNumber));
         bytes.Add(packet.Cmd);
         bytes.AddRange(BitConverter.GetBytes(packet.Len));
-        if (packet.CRC.HasValue)
+        if (packet.CRC.HasValue && !ignoreCRC)
             bytes.AddRange(BitConverter.GetBytes(packet.CRC.Value));
         bytes.AddRange(packet.Message);
 
@@ -112,12 +112,12 @@ public class FullDuplexProtocol
         };
         messagePacket.Message.AddRange(buf); // Add data
 
-        var messagePackettoBytes = PacketMessageToBytes(messagePacket); // Without CRC
+        var messagePacketToBytes = PacketMessageToBytes(messagePacket); // Without CRC
 
         IncrementSequenceNumber(); // Increment the sequence number
 
         // Calculate the CRC using the provided delegate
-        object crcObject = calculateCRC(messagePackettoBytes!);
+        object crcObject = calculateCRC(messagePacketToBytes!);
 
         // Buffer to store the CRC bytes
         UInt32 crcBytes;
@@ -150,13 +150,11 @@ public class FullDuplexProtocol
         }
         MessageInfo receivedMessage = new();
 
-         receivedMessage.PacketMessage = Utils.DeserializeFromBytes<PacketMessage>(buf);
-
-
+         receivedMessage.PacketMessage = Utils.DeserializeFromBytes<PacketMessage>(buf.ToArray());
 
         // Unpack the message bytes into relevant fields
         //UInt16 messageId = (UInt16)((buf[0] << 8) | buf[1]);
-       //byte protocolVersion = buf[2];
+        //byte protocolVersion = buf[2];
         //TypeMessage typeMessage = (TypeMessage)buf[3]; // Included the TypeMessage
         //UInt16 sequenceNumber = (UInt16)((buf[4] << 8) | buf[5]);
         //byte cmd = buf[6];
@@ -167,37 +165,27 @@ public class FullDuplexProtocol
 
         // Create a sublist containing all bytes except the last two
         //List<byte> bufWithoutCRC = buf.GetRange(0, buf.Count - 2);
-        todo aquiii
+
         // Calculate the CRC of the sublist
-        object calculatedCRC = calculateCRC(bufWithoutCRC);
+        List<byte> receivedMessagePacketToBytes = PacketMessageToBytes(receivedMessage.PacketMessage);
+
+        object calculatedCRC = calculateCRC(receivedMessagePacketToBytes);
 
         // Todo se for CRC32 aqui daria merda
         // Check CRC
-        if ((UInt16)calculatedCRC == receivedCRC)
+        if ((UInt16)calculatedCRC == receivedMessage.PacketMessage.CRC)
         {
             CRC_Ok = true;
         }
 
         // Check if the message follows the protocol
-        if (messageId != MESSAGE_ID_SEND || protocolVersion != VERSION_PROTOCOL)
+        if (receivedMessage.PacketMessage.Header != MESSAGE_ID_SEND || receivedMessage.PacketMessage.VersionProtocol != VERSION_PROTOCOL)
         {
             _logger.LogError("Message does not follow protocol");
             return null;
         }
 
-
-        // Create and return a MessageInfo object
-        MessageInfo receivedMessage = new MessageInfo
-        {
-            State = CRC_Ok ? MessageState.RECEIVED_SUCCESSFULL : MessageState.RECEIVED_CRC_ERROR,
-            PacketMessage =
-            {
-                Cmd=cmd,
-                SequenceNumber = sequenceNumber,
-                TypeMessage = typeMessage,
-            }
-        };
-        receivedMessage.PacketMessage.Message.AddRange(buf);
+        receivedMessage.State = CRC_Ok ? MessageState.RECEIVED_SUCCESSFULL : MessageState.RECEIVED_CRC_ERROR;
 
         return receivedMessage;
     }

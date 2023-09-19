@@ -34,10 +34,10 @@ public class SerialRPi : IDisposable
 
     private readonly RaspConfig _raspConfig;
 
-    private readonly MessageManager messageManager = new MessageManager();
+    private readonly MessageManager messageManager = new();
 
     // Semaphore para sincronização assíncrona
-    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
 
     public SerialRPi(ILogger<BackgroundWorkerService> logger, FullDuplexProtocol protocol, IOptions<RaspConfig> raspConfigOptions)
     {
@@ -49,6 +49,9 @@ public class SerialRPi : IDisposable
         messageManager.ProtocolVersion = _protocol.VERSION_PROTOCOL;
 
         SetCRC("CRC16");
+
+        cancellationTokenSource_SendSerialMessageAsync = new CancellationTokenSource();
+        cancellationTokenSource_TimeoutChecker = new CancellationTokenSource();
 
         // Initialize other fields, or you can make them nullable if that makes more sense
         sendingTask = Task.CompletedTask;  // Initialized with a completed task as a placeholder
@@ -213,11 +216,11 @@ public class SerialRPi : IDisposable
             // Log details of the decoded message only in the development environment (TODO: Ensure this only happens in the dev environment)
             _logger.LogDebug("Decoded Message Details: State={State}, Cmd={Cmd}, SequenceNumber={SequenceNumber}, NumTries={NumTries}, Timeout={Timeout}, Buffer={Buffer}",
                                          decodedMessage?.State,
-                                         decodedMessage?.Cmd,
-                                         decodedMessage?.SequenceNumber,
+                                         decodedMessage?.PacketMessage.Cmd,
+                                         decodedMessage?.PacketMessage.SequenceNumber,
                                          decodedMessage?.CountAttemptsSendTx,
                                          decodedMessage?.Timeout,
-                                         decodedMessage?.Buffer != null ? BitConverter.ToString(decodedMessage.Buffer.ToArray()) : "null");
+                                         decodedMessage?.PacketMessage.Message);
 
             if (decodedMessage != null)
             {
@@ -238,10 +241,10 @@ public class SerialRPi : IDisposable
     private void ProcessDecodedMessage(MessageInfo? decodedMessage)
     {
         // Attempt to find a matching message from the buffer based on SequenceNumber
-        var messageFound = messageManager.MessageBuffer.FirstOrDefault(x => x.SequenceNumber == decodedMessage?.SequenceNumber);
+        var messageFound = messageManager.MessageBuffer.FirstOrDefault(x => x.PacketMessage.SequenceNumber == decodedMessage?.PacketMessage.SequenceNumber);
 
         // Check the type of the message received
-        if (decodedMessage?.TypeMessage == TypeMessage.MESSAGE_ACK)
+        if (decodedMessage?.PacketMessage.TypeMessage == TypeMessage.MESSAGE_ACK)
         {
             // If ACK message received successfully, remove the corresponding message from the buffer
             HandleAckMessage(decodedMessage, messageFound);

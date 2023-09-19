@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj": {}
+    "C:\\Users\\lucas.silva\\Desktop\\git_Lucas\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj": {}
   },
   "projects": {
-    "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj": {
+    "C:\\Users\\lucas.silva\\Desktop\\git_Lucas\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
+        "projectUniqueName": "C:\\Users\\lucas.silva\\Desktop\\git_Lucas\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
         "projectName": "ReflowOven.API.Integration.Peripheral",
-        "projectPath": "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
-        "packagesPath": "C:\\Users\\LuquiinhaS\\.nuget\\packages\\",
-        "outputPath": "C:\\git\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\obj\\",
+        "projectPath": "C:\\Users\\lucas.silva\\Desktop\\git_Lucas\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\ReflowOven.API.Integration.Peripheral.csproj",
+        "packagesPath": "C:\\Users\\lucas.silva\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lucas.silva\\Desktop\\git_Lucas\\ReflowOven.API\\ReflowOven.API.Integration.Peripheral\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\LuquiinhaS\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lucas.silva\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -124,7 +129,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
         }
       }
     }
