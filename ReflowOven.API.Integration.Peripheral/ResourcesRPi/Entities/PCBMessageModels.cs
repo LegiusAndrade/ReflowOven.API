@@ -15,7 +15,7 @@ public enum MessageState
 public class PacketMessage
 {
     public UInt16 Header { get; set; }
-    public UInt16 VersionProtocol { get; set; }
+    public Byte VersionProtocol { get; set; }
     public TypeMessage TypeMessage { get; set; }
     public UInt16 SequenceNumber { get; set; }
     public Byte Cmd { get; set; }

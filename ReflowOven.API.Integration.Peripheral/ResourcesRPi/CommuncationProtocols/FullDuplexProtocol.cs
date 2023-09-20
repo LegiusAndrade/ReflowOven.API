@@ -83,7 +83,7 @@ public class FullDuplexProtocol
 
         // Convert each property to bytes and add to the list
         bytes.AddRange(BitConverter.GetBytes(packet.Header));
-        bytes.AddRange(BitConverter.GetBytes(packet.VersionProtocol));
+        bytes.Add((byte)(packet.VersionProtocol));
         bytes.Add((byte)packet.TypeMessage);  // Assuming TypeMessage is an enum of type UInt16
         bytes.AddRange(BitConverter.GetBytes(packet.SequenceNumber));
         bytes.Add(packet.Cmd);
@@ -199,9 +199,9 @@ public class FullDuplexProtocol
         PacketMessage packet = new PacketMessage
         {
             Header = BitConverter.ToUInt16(data, offset),
-            VersionProtocol = BitConverter.ToUInt16(data, offset += 2),
-            TypeMessage = (TypeMessage)BitConverter.ToChar(data, offset += 2),
-            SequenceNumber = BitConverter.ToUInt16(data, offset += 2),
+            VersionProtocol = data[offset += 2],
+            TypeMessage = (TypeMessage)BitConverter.ToChar(data, offset += 1),
+            SequenceNumber = BitConverter.ToUInt16(data, offset += 1),
             Cmd = data[offset += 2],
             Len = BitConverter.ToUInt16(data, offset += 1),
             CRC = BitConverter.ToUInt32(data, offset += 2)

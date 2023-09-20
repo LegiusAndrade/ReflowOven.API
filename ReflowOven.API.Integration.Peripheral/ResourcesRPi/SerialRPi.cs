@@ -174,23 +174,23 @@ public class SerialRPi : IDisposable
                     _logger.LogInformation("Sending a message...");
                     await Task.Run(() =>
                     {
-                        byte[] byteListHeader, byteListVersionProtocol, byteListTypeMessage, byteListCmd, byteListLen, byteListSequenceNumber, byteListMessage, byteListCRC;
+                        byte[] byteListHeader, byteListVersionProtocol, byteListTypeMessage, byteListSequenceNumber, byteListCmd, byteListLen, byteListMessage, byteListCRC;
 
-                        byteListHeader = Utils.GetBytes(messageToSend.PacketMessage.Header);
-                        byteListVersionProtocol = Utils.GetBytes(messageToSend.PacketMessage.VersionProtocol);
-                        byteListTypeMessage = Utils.GetBytes((char)messageToSend.PacketMessage.TypeMessage);
-                        byteListSequenceNumber = Utils.GetBytes(messageToSend.PacketMessage.SequenceNumber);
-                        byteListCmd = Utils.GetBytes(messageToSend.PacketMessage.Cmd);
-                        byteListLen = Utils.GetBytes(messageToSend.PacketMessage.Len);
+                        byteListHeader = Utils.GetBytes(messageToSend.PacketMessage.Header,true);
+                        byteListVersionProtocol = new byte[] { Convert.ToByte(messageToSend.PacketMessage.VersionProtocol)};
+                        byteListTypeMessage = new byte[] { Convert.ToByte(messageToSend.PacketMessage.TypeMessage) };
+                        byteListSequenceNumber = Utils.GetBytes(messageToSend.PacketMessage.SequenceNumber,true);
+                        byteListCmd = new byte[] { Convert.ToByte(messageToSend.PacketMessage.Cmd) };
+                        byteListLen = Utils.GetBytes(messageToSend.PacketMessage.Len,true);
 
                         if (messageManager.TypeCRC == "CRC16")
                         {
-                            byteListCRC = Utils.GetBytes((UInt16)messageToSend.PacketMessage.CRC!.Value);
+                            byteListCRC = Utils.GetBytes((UInt16)messageToSend.PacketMessage.CRC!.Value,true);
 
                         }
                         else if (messageManager.TypeCRC == "CRC32")
                         {
-                            byteListCRC = Utils.GetBytes((UInt32)messageToSend.PacketMessage.CRC!.Value);
+                            byteListCRC = Utils.GetBytes((UInt32)messageToSend.PacketMessage.CRC!.Value,true);
                         }
                         else
                         {
@@ -206,8 +206,8 @@ public class SerialRPi : IDisposable
                             byteListSequenceNumber,
                             byteListCmd,
                             byteListLen,
+                            byteListCRC,
                             byteListMessage,
-                            byteListCRC
                         }
                         .SelectMany(b => b).ToArray();
 
@@ -408,7 +408,9 @@ public class SerialRPi : IDisposable
     public void Dispose()
     {
         AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;  // Desregistrar o evento
+        
         CloseSerial();
     }
+    
 
 }
