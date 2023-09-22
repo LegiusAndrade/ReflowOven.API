@@ -130,7 +130,7 @@ public class BackgroundWorkerService : BackgroundService
         if (cntSendIAmHere == TIME_I_AM_HERE / 100)
         {
             List<byte> data = new List<byte>() { (byte)0x01, (byte) 0x02, (byte)0x03 };
-            _serialRPi.SendMessage(data, (byte)IStatusRPi.Commands.I_AM_HERE);
+            //_serialRPi.SendMessage(data, (byte)IStatusRPi.Commands.I_AM_HERE);
             _logger.LogInformation("Send I Am Here at:{time}", DateTimeOffset.Now);
             cntSendIAmHere = 0;
         }

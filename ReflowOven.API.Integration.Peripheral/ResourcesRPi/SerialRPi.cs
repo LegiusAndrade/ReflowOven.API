@@ -206,8 +206,8 @@ public class SerialRPi : IDisposable
                             byteListSequenceNumber,
                             byteListCmd,
                             byteListLen,
-                            byteListCRC,
                             byteListMessage,
+                            byteListCRC,
                         }
                         .SelectMany(b => b).ToArray();
 
@@ -316,7 +316,6 @@ public class SerialRPi : IDisposable
             using var controller = new GpioController();
             controller.OpenPin(_raspConfig.PinsConfig.LED_COMM, PinMode.Output);
             controller.Toggle(_raspConfig.PinsConfig.LED_COMM);
-
 
             // Signal that a new message is available for reading (TODO: Add the message to a read buffer)
             //TODO : SENd ACK for confirmation message

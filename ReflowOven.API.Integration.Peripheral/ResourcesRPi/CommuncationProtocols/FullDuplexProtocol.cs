@@ -191,25 +191,36 @@ public class FullDuplexProtocol
         return receivedMessage;
     }
 
-
     public static PacketMessage DeserializeFromBytes(byte[] data)
     {
         int offset = 0;
 
-        PacketMessage packet = new PacketMessage
-        {
-            Header = BitConverter.ToUInt16(data, offset),
-            VersionProtocol = data[offset += 2],
-            TypeMessage = (TypeMessage)BitConverter.ToChar(data, offset += 1),
-            SequenceNumber = BitConverter.ToUInt16(data, offset += 1),
-            Cmd = data[offset += 2],
-            Len = BitConverter.ToUInt16(data, offset += 1),
-            CRC = BitConverter.ToUInt32(data, offset += 2)
-        };
+        PacketMessage packet = new PacketMessage();
 
-        offset += 2;  // Moving past the UInt16 size of CRC. TODO melhorar
+        packet.Header = BitConverter.ToUInt16(data, offset);
+        offset += Utils.AddToOffset(packet.Header);
+
+        packet.VersionProtocol = data[offset];
+        offset += Utils.AddToOffset(packet.VersionProtocol);
+
+        packet.TypeMessage = (TypeMessage)BitConverter.ToChar(data, offset);
+        offset += Utils.AddToOffset((byte)packet.TypeMessage);
+
+        packet.SequenceNumber = BitConverter.ToUInt16(data, offset);
+        offset += Utils.AddToOffset(packet.SequenceNumber);
+
+        packet.Cmd = data[offset];
+        offset += Utils.AddToOffset(packet.Cmd);
+
+        packet.Len = BitConverter.ToUInt16(data, offset);
+        offset += Utils.AddToOffset(packet.Len);
 
         packet.Message = data.Skip(offset).Take(packet.Len).ToList();
+        offset += packet.Len;
+
+//TODO melhorar para verificar se o tipo de CRC é 16 ou 332 bits
+        packet.CRC = BitConverter.ToUInt16(data, offset);
+        // No need to adjust offset after this since we're done.
 
         return packet;
     }

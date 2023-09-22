@@ -55,4 +55,25 @@ public class Utils
         else
             return (byte[])bytes.Reverse().ToArray();
     }
+
+    public static int AddToOffset<T>(T value)
+    {
+        Type type = typeof(T);
+
+        if (type == typeof(byte))
+        {
+            return 1;
+        }
+        if (type == typeof(ushort) || type == typeof(char))
+        {
+            return 2;
+        }
+        if (type == typeof(uint))
+        {
+            return 4;
+        }
+        // ... Adicione outros tipos conforme necessário
+
+        throw new InvalidOperationException("Tipo não suportado.");
+    }
 }
