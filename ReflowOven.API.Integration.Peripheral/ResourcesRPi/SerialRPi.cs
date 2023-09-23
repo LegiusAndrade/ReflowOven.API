@@ -85,6 +85,9 @@ public class SerialRPi : IDisposable
         {
             _sp_config.Open();
 
+            _sp_config.DiscardInBuffer();
+            _sp_config.DiscardOutBuffer();
+
             // Initialize tasks
             cancellationTokenSource_SendSerialMessageAsync = new CancellationTokenSource();
             cancellationTokenSource_TimeoutChecker = new CancellationTokenSource();
@@ -176,27 +179,28 @@ public class SerialRPi : IDisposable
                     {
                         byte[] byteListHeader, byteListVersionProtocol, byteListTypeMessage, byteListSequenceNumber, byteListCmd, byteListLen, byteListMessage, byteListCRC;
 
-                        byteListHeader = Utils.GetBytes(messageToSend.PacketMessage.Header,true);
-                        byteListVersionProtocol = new byte[] { Convert.ToByte(messageToSend.PacketMessage.VersionProtocol)};
-                        byteListTypeMessage = new byte[] { Convert.ToByte(messageToSend.PacketMessage.TypeMessage) };
-                        byteListSequenceNumber = Utils.GetBytes(messageToSend.PacketMessage.SequenceNumber,true);
-                        byteListCmd = new byte[] { Convert.ToByte(messageToSend.PacketMessage.Cmd) };
-                        byteListLen = Utils.GetBytes(messageToSend.PacketMessage.Len,true);
+                        byteListHeader = Utils.GetBytes(messageToSend.PacketMessage?.Header ?? 0, true);
+                        byteListVersionProtocol = new byte[] { Convert.ToByte(messageToSend.PacketMessage?.VersionProtocol ?? 0) };
+                        byteListTypeMessage = new byte[] { Convert.ToByte(messageToSend.PacketMessage?.TypeMessage ?? 0) };
+                        byteListSequenceNumber = Utils.GetBytes(messageToSend.PacketMessage?.SequenceNumber ?? 0, true);
+                        byteListCmd = new byte[] { Convert.ToByte(messageToSend.PacketMessage?.Cmd ?? 0) };
+                        byteListLen = Utils.GetBytes(messageToSend.PacketMessage?.Len ?? 0, true);
 
                         if (messageManager.TypeCRC == "CRC16")
                         {
-                            byteListCRC = Utils.GetBytes((UInt16)messageToSend.PacketMessage.CRC!.Value,true);
+                            byteListCRC = Utils.GetBytes((UInt16)(messageToSend.PacketMessage?.CRC!.Value ?? 0), true);
 
                         }
                         else if (messageManager.TypeCRC == "CRC32")
                         {
-                            byteListCRC = Utils.GetBytes((UInt32)messageToSend.PacketMessage.CRC!.Value,true);
+                            byteListCRC = Utils.GetBytes((UInt32)(messageToSend.PacketMessage?.CRC!.Value ?? 0), true);
                         }
                         else
                         {
                             throw new InvalidOperationException("Unsupported CRC type"); // Throw an exception for unsupported types
                         }
-                        byteListMessage = messageToSend.PacketMessage.Message.ToArray();
+
+                        byteListMessage = messageToSend.PacketMessage!.Message.ToArray();
 
                         byte[] byteList = new byte[][]
                         {
@@ -244,17 +248,24 @@ public class SerialRPi : IDisposable
             sp.Read(buffer, 0, buffer.Length);
 
             List<byte> buf = buffer.ToList();
-
-            var decodedMessage = _protocol?.ReceivedMessageProtocol(buf, _crc16Calculator.CalculateCRC16Wrapper);
+            MessageInfo? decodedMessage = new();
+            try
+            {
+                decodedMessage = _protocol?.ReceivedMessageProtocol(buf, _crc16Calculator.CalculateCRC16Wrapper);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error in decoded message: {message}", ex.Message);
+            }
 
             // Log details of the decoded message only in the development environment (TODO: Ensure this only happens in the dev environment)
             _logger.LogDebug("Decoded Message Details: State={State}, Cmd={Cmd}, SequenceNumber={SequenceNumber}, NumTries={NumTries}, Timeout={Timeout}, Buffer={Buffer}",
                                          decodedMessage?.State,
-                                         decodedMessage?.PacketMessage.Cmd,
-                                         decodedMessage?.PacketMessage.SequenceNumber,
+                                         decodedMessage?.PacketMessage?.Cmd,
+                                         decodedMessage?.PacketMessage?.SequenceNumber,
                                          decodedMessage?.CountAttemptsSendTx,
                                          decodedMessage?.Timeout,
-                                         decodedMessage?.PacketMessage.Message);
+                                         decodedMessage?.PacketMessage?.Message);
 
             if (decodedMessage != null)
             {
@@ -267,6 +278,7 @@ public class SerialRPi : IDisposable
         }
         finally
         {
+            _sp_config?.DiscardInBuffer();
             _semaphore.Release();
         }
 
@@ -275,10 +287,10 @@ public class SerialRPi : IDisposable
     private void ProcessDecodedMessage(MessageInfo? decodedMessage)
     {
         // Attempt to find a matching message from the buffer based on SequenceNumber
-        var messageFound = messageManager.MessageBuffer.FirstOrDefault(x => x.PacketMessage.SequenceNumber == decodedMessage?.PacketMessage.SequenceNumber);
+        var messageFound = messageManager.MessageBuffer.FirstOrDefault(x => x.PacketMessage?.SequenceNumber == decodedMessage?.PacketMessage?.SequenceNumber);
 
         // Check the type of the message received
-        if (decodedMessage?.PacketMessage.TypeMessage == TypeMessage.MESSAGE_ACK)
+        if (decodedMessage?.PacketMessage?.TypeMessage == TypeMessage.MESSAGE_ACK)
         {
             // If ACK message received successfully, remove the corresponding message from the buffer
             HandleAckMessage(decodedMessage, messageFound);
@@ -308,14 +320,39 @@ public class SerialRPi : IDisposable
         }
     }
 
+    //ALternative controller.Toggle ## not working in .net 7
+    private void TogglePin(GpioController controller, int pinNumber)
+    {
+        PinValue currentState = controller.Read(pinNumber);
+
+        if (currentState == PinValue.High)
+        {
+            controller.Write(pinNumber, PinValue.Low);
+        }
+        else
+        {
+            controller.Write(pinNumber, PinValue.High);
+        }
+    }
+
     private void HandleNonAckMessage(MessageInfo? decodedMessage, MessageInfo? messageFound)
     {
         if (decodedMessage?.State == MessageState.RECEIVED_SUCCESSFULL) //New message for read
         {
+
             /* Toogle pin comm */
-            using var controller = new GpioController();
-            controller.OpenPin(_raspConfig.PinsConfig.LED_COMM, PinMode.Output);
-            controller.Toggle(_raspConfig.PinsConfig.LED_COMM);
+            try
+            {
+                using var controller = new GpioController();
+                controller.OpenPin(_raspConfig.PinsConfig.LED_COMM, PinMode.Output);
+                TogglePin(controller, _raspConfig.PinsConfig.LED_COMM);
+                controller.ClosePin(_raspConfig.PinsConfig.LED_COMM);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error with GPIO: {message}", ex.Message);
+            }
 
             // Signal that a new message is available for reading (TODO: Add the message to a read buffer)
             //TODO : SENd ACK for confirmation message
@@ -407,9 +444,9 @@ public class SerialRPi : IDisposable
     public void Dispose()
     {
         AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;  // Desregistrar o evento
-        
+
         CloseSerial();
     }
-    
+
 
 }

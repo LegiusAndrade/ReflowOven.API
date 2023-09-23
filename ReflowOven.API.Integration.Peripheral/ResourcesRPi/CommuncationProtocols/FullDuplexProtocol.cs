@@ -143,16 +143,23 @@ public class FullDuplexProtocol
     public MessageInfo? ReceivedMessageProtocol(List<byte> buf, Func<List<byte>, object> calculateCRC)
     {
         bool CRC_Ok = false;
+        MessageInfo receivedMessage = new();
         if (buf.Count < SizeHeader)
         {
             _logger.LogError("Message corrupted or incomplete, contains only {0} bytes", buf.Count);
             return null;
         }
-        MessageInfo receivedMessage = new()
+        try
         {
-            PacketMessage = DeserializeFromBytes(buf.ToArray())
-        };
+            receivedMessage.PacketMessage = DeserializeFromBytes(buf.ToArray());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error in desserialize message: {message}", ex.Message);
+        }
 
+        if (receivedMessage == null)
+            return null;
         // Unpack the message bytes into relevant fields
         //UInt16 messageId = (UInt16)((buf[0] << 8) | buf[1]);
         //byte protocolVersion = buf[2];
@@ -168,30 +175,47 @@ public class FullDuplexProtocol
         //List<byte> bufWithoutCRC = buf.GetRange(0, buf.Count - 2);
 
         // Calculate the CRC of the sublist
-        List<byte> receivedMessagePacketToBytes = PacketMessageToBytes(receivedMessage.PacketMessage);
 
-        object calculatedCRC = calculateCRC(receivedMessagePacketToBytes);
-
-        // Todo se for CRC32 aqui daria merda
-        // Check CRC
-        if ((UInt16)calculatedCRC == receivedMessage.PacketMessage.CRC)
+        try
         {
-            CRC_Ok = true;
-        }
+            List<byte> receivedMessagePacketToBytes = PacketMessageToBytes(receivedMessage.PacketMessage ?? new PacketMessage
+            {
+                Header = 0,
+                Cmd = 0,
+                CRC = 0,
+                Len = 0,
+                SequenceNumber = 0,
+                TypeMessage = 0,
+                VersionProtocol = 0,
+            });
 
-        // Check if the message follows the protocol
-        if (receivedMessage.PacketMessage.Header != MESSAGE_ID_SEND || receivedMessage.PacketMessage.VersionProtocol != VERSION_PROTOCOL)
+            object calculatedCRC = calculateCRC(receivedMessagePacketToBytes);
+
+            // Todo se for CRC32 aqui daria merda
+            // Check CRC
+            if ((UInt16)calculatedCRC == receivedMessage?.PacketMessage?.CRC)
+            {
+                CRC_Ok = true;
+            }
+
+            // Check if the message follows the protocol
+            if (receivedMessage?.PacketMessage?.Header != MESSAGE_ID_SEND || receivedMessage?.PacketMessage?.VersionProtocol != VERSION_PROTOCOL)
+            {
+                _logger.LogError("Message does not follow protocol");
+                return null;
+            }
+
+            receivedMessage.State = CRC_Ok ? MessageState.RECEIVED_SUCCESSFULL : MessageState.RECEIVED_CRC_ERROR;
+        }
+        catch (Exception ex)
         {
-            _logger.LogError("Message does not follow protocol");
-            return null;
+            _logger.LogError("Error in calc CRC message: {message}", ex.Message);
         }
-
-        receivedMessage.State = CRC_Ok ? MessageState.RECEIVED_SUCCESSFULL : MessageState.RECEIVED_CRC_ERROR;
 
         return receivedMessage;
     }
 
-    public static PacketMessage DeserializeFromBytes(byte[] data)
+    public static PacketMessage? DeserializeFromBytes(byte[] data)
     {
         int offset = 0;
 
@@ -215,10 +239,15 @@ public class FullDuplexProtocol
         packet.Len = BitConverter.ToUInt16(data, offset);
         offset += Utils.AddToOffset(packet.Len);
 
+        if (packet.Len > MessageConstants.MaxBuf)
+        {
+            return null;
+        }
+
         packet.Message = data.Skip(offset).Take(packet.Len).ToList();
         offset += packet.Len;
 
-//TODO melhorar para verificar se o tipo de CRC é 16 ou 332 bits
+        //TODO melhorar para verificar se o tipo de CRC é 16 ou 332 bits
         packet.CRC = BitConverter.ToUInt16(data, offset);
         // No need to adjust offset after this since we're done.
 

@@ -129,7 +129,7 @@ public class BackgroundWorkerService : BackgroundService
         cntSendIAmHere++;
         if (cntSendIAmHere == TIME_I_AM_HERE / 100)
         {
-            List<byte> data = new List<byte>() { (byte)0x01, (byte) 0x02, (byte)0x03 };
+            List<byte> data = new List<byte>() { (byte)0x01, (byte)0x02, (byte)0x03 };
             //_serialRPi.SendMessage(data, (byte)IStatusRPi.Commands.I_AM_HERE);
             _logger.LogInformation("Send I Am Here at:{time}", DateTimeOffset.Now);
             cntSendIAmHere = 0;
@@ -228,9 +228,15 @@ public class BackgroundWorkerService : BackgroundService
     }
     private void ToggleLED(PinValue value)
     {
-        using var controller = new GpioController();
-        controller.OpenPin(_raspConfig.PinsConfig.LED_STATUS, PinMode.Output);
-        controller.Write(_raspConfig.PinsConfig.LED_STATUS, value);
+
+         using (var controller = new GpioController())
+        {
+            controller.OpenPin(_raspConfig.PinsConfig.LED_STATUS, PinMode.Output);
+            controller.Write(_raspConfig.PinsConfig.LED_STATUS, value);
+
+
+            controller.ClosePin(_raspConfig.PinsConfig.LED_STATUS);
+        } 
     }
 
 

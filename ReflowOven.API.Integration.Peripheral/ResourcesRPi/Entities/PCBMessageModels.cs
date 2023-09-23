@@ -30,7 +30,7 @@ public class MessageInfo
     public UInt16? CountAttemptsSendTx { get; set; }
     public UInt16? CountAttemptsReceivedACK { get; set; }
     public Int32? Timeout { get; set; }
-    public PacketMessage PacketMessage { get; set; } = new PacketMessage();
+    public PacketMessage? PacketMessage { get; set; } = new PacketMessage();
 }
 public enum TypeMessage : Byte
 {
