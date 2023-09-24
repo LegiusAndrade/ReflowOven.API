@@ -97,14 +97,14 @@ public class FullDuplexProtocol
 
 
     // Method to send message according to the protocol
-    public PacketMessage SendMessageProtocol(List<byte> buf, byte cmd, Func<List<byte>, object> calculateCRC)
+    public PacketMessage SendMessageProtocol(List<byte> buf, byte cmd, Func<List<byte>, object> calculateCRC, bool isACK = false, UInt16 sequenceNumberMessageForACK = 0)
     {
         PacketMessage messagePacket = new()
         {
             Header = MESSAGE_ID_SEND,
             VersionProtocol = VERSION_PROTOCOL,
-            TypeMessage = TypeMessage.MESSAGE_SEND,
-            SequenceNumber = sequenceNumber,
+            TypeMessage = isACK? TypeMessage.MESSAGE_ACK:TypeMessage.MESSAGE_SEND,
+            SequenceNumber = isACK ? sequenceNumberMessageForACK: sequenceNumber,
             Cmd = cmd,
             Len = (UInt16)buf.Count,
             CRC = null,
@@ -113,7 +113,7 @@ public class FullDuplexProtocol
 
         var messagePacketToBytes = PacketMessageToBytes(messagePacket); // Without CRC
 
-        IncrementSequenceNumber(); // Increment the sequence number
+        if(!isACK) IncrementSequenceNumber(); // Increment the sequence number
 
         // Calculate the CRC using the provided delegate
         object crcObject = calculateCRC(messagePacketToBytes!);
@@ -160,21 +160,6 @@ public class FullDuplexProtocol
 
         if (receivedMessage == null)
             return null;
-        // Unpack the message bytes into relevant fields
-        //UInt16 messageId = (UInt16)((buf[0] << 8) | buf[1]);
-        //byte protocolVersion = buf[2];
-        //TypeMessage typeMessage = (TypeMessage)buf[3]; // Included the TypeMessage
-        //UInt16 sequenceNumber = (UInt16)((buf[4] << 8) | buf[5]);
-        //byte cmd = buf[6];
-        //UInt16 dataSize = (UInt16)((buf[7] << 8) | buf[8]);
-
-        // Get the last two bytes (received CRC)
-        //UInt16 receivedCRC = (UInt16)((buf[buf.Count - 2] << 8) | buf[buf.Count - 1]);
-
-        // Create a sublist containing all bytes except the last two
-        //List<byte> bufWithoutCRC = buf.GetRange(0, buf.Count - 2);
-
-        // Calculate the CRC of the sublist
 
         try
         {

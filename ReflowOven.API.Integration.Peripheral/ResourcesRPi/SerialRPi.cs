@@ -119,7 +119,7 @@ public class SerialRPi : IDisposable
     }
 
     // Sends a message to the buffer
-    public void SendMessage(List<byte> buffer, byte cmd)
+    public void SendMessage(List<byte> buffer, byte cmd, bool isACK = false,UInt16 SequenceNumberForACK = 0)
     {
 
         if (buffer.Count > MessageConstants.MaxBuf - _protocol?.SizeHeader)
@@ -135,7 +135,7 @@ public class SerialRPi : IDisposable
                 State = MessageState.READY_FOR_SEND,
                 CountAttemptsSendTx = 0,
                 Timeout = MessageConstants.TimeoutAck, // Define a 5-second timeout, for example
-                PacketMessage = _protocol!.SendMessageProtocol(buffer, cmd, _crc16Calculator.CalculateCRC16Wrapper),
+                PacketMessage = _protocol!.SendMessageProtocol(buffer, cmd, _crc16Calculator.CalculateCRC16Wrapper, isACK, (isACK? SequenceNumberForACK : (UInt16)0)),
             };
 
             messageManager.MessageBuffer.Add(newMessage);
@@ -170,7 +170,8 @@ public class SerialRPi : IDisposable
                         }
                     }
                 }
-
+todo: proxima tarefa fazer um contador de retransmissão
+um contador para mensagens erradas e excluidas
                 if (messageToSend != null)
                 {
                     // Transmit the message here
@@ -219,7 +220,14 @@ public class SerialRPi : IDisposable
                     }, token);
                     _logger.LogInformation("Message sent successfully.");
 
-                    messageToSend.State = MessageState.SENT;
+                    if (messageToSend.PacketMessage?.TypeMessage == TypeMessage.MESSAGE_ACK)
+                    {
+                        messageManager.MessageBuffer.Remove(messageToSend);
+                    }
+                    else
+                    {
+                        messageToSend.State = MessageState.SENT;
+                    }
 
                     await Task.Delay(100, token); // Wait for 100 milliseconds before next iteration
                 }
@@ -353,6 +361,12 @@ public class SerialRPi : IDisposable
             {
                 _logger.LogError("Error with GPIO: {message}", ex.Message);
             }
+            if (decodedMessage == null || decodedMessage?.PacketMessage == null)
+            {
+                return;
+            }
+
+            SendMessage(decodedMessage.PacketMessage.Message, decodedMessage.PacketMessage.Cmd, true, decodedMessage.PacketMessage.SequenceNumber);
 
             // Signal that a new message is available for reading (TODO: Add the message to a read buffer)
             //TODO : SENd ACK for confirmation message
