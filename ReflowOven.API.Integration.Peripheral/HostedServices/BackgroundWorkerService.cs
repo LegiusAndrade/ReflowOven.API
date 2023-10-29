@@ -60,8 +60,8 @@ public class BackgroundWorkerService : BackgroundService
             DataBits = 8,
             Parity = Parity.None,
             StopBits = StopBits.One,
-            WriteTimeout = TimeSpan.FromMilliseconds(300).Milliseconds,
-            ReadTimeout = TimeSpan.FromMilliseconds(100).Milliseconds
+            WriteTimeout = TimeSpan.FromMilliseconds(10).Milliseconds,
+            ReadTimeout = TimeSpan.FromMilliseconds(10).Milliseconds
         };
 
         _serialRPi.InitSerial(sp);
@@ -117,7 +117,7 @@ public class BackgroundWorkerService : BackgroundService
         StatusLEDControl(SystemRPi.Status);
     }
 
-    private void SetStateRPi(IStatusRPi.Status status)
+    private static void SetStateRPi(IStatusRPi.Status status)
     {
         SystemRPi.Status = status;
     }
@@ -130,7 +130,7 @@ public class BackgroundWorkerService : BackgroundService
         if (cntSendIAmHere == TIME_I_AM_HERE / 100)
         {
             List<byte> data = new List<byte>() { (byte)0x01, (byte)0x02, (byte)0x03 };
-            //_serialRPi.SendMessage(data, (byte)IStatusRPi.Commands.I_AM_HERE);
+//            _serialRPi.SendMessage(data, (byte)IStatusRPi.Commands.I_AM_HERE);
             _logger.LogInformation("Send I Am Here at:{time}", DateTimeOffset.Now);
             cntSendIAmHere = 0;
         }
@@ -235,7 +235,7 @@ public class BackgroundWorkerService : BackgroundService
             controller.Write(_raspConfig.PinsConfig.LED_STATUS, value);
 
 
-            controller.ClosePin(_raspConfig.PinsConfig.LED_STATUS);
+            //controller.ClosePin(_raspConfig.PinsConfig.LED_STATUS);
         } 
     }
 

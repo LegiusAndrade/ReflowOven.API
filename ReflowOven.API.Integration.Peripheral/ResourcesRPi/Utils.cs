@@ -1,5 +1,6 @@
 ﻿using ReflowOven.API.Integration.Peripheral.ResourcesRPi.Interfaces;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Text.Json;
 
 namespace ReflowOven.API.Integration.Peripheral.ResourcesRPi;
@@ -75,5 +76,14 @@ public class Utils
         // ... Adicione outros tipos conforme necessário
 
         throw new InvalidOperationException("Tipo não suportado.");
+    }
+    public static string ToHexString(byte[] bytes)
+    {
+        StringBuilder result = new StringBuilder(bytes.Length * 4); // 4 para incluir o "0x" e espaço
+        foreach (byte b in bytes)
+        {
+            result.AppendFormat("0x{0:x2} ", b);
+        }
+        return result.ToString().Trim(); // Trim para remover o último espaço
     }
 }

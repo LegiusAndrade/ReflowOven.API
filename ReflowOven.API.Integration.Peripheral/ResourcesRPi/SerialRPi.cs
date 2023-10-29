@@ -153,7 +153,7 @@ public class SerialRPi : IDisposable
                 // Check if there are messages in the buffer
                 if (messageManager.MessageBuffer.Count == 0)
                 {
-                    await Task.Delay(100, token); // Wait a bit before checking again
+                    await Task.Delay(5); // Wait a bit before checking again
                     continue;
                 }
 
@@ -170,8 +170,6 @@ public class SerialRPi : IDisposable
                         }
                     }
                 }
-todo: proxima tarefa fazer um contador de retransmissão
-um contador para mensagens erradas e excluidas
                 if (messageToSend != null)
                 {
                     // Transmit the message here
@@ -229,7 +227,7 @@ um contador para mensagens erradas e excluidas
                         messageToSend.State = MessageState.SENT;
                     }
 
-                    await Task.Delay(100, token); // Wait for 100 milliseconds before next iteration
+                    await Task.Delay(5); // Wait for 100 milliseconds before next iteration
                 }
             }
         }
@@ -286,7 +284,7 @@ um contador para mensagens erradas e excluidas
         }
         finally
         {
-            _sp_config?.DiscardInBuffer();
+            //_sp_config?.DiscardInBuffer();
             _semaphore.Release();
         }
 
@@ -329,7 +327,7 @@ um contador para mensagens erradas e excluidas
     }
 
     //ALternative controller.Toggle ## not working in .net 7
-    private void TogglePin(GpioController controller, int pinNumber)
+    private static void TogglePin(GpioController controller, int pinNumber)
     {
         PinValue currentState = controller.Read(pinNumber);
 
@@ -354,7 +352,7 @@ um contador para mensagens erradas e excluidas
                 using var controller = new GpioController();
                 controller.OpenPin(_raspConfig.PinsConfig.LED_COMM, PinMode.Output);
                 TogglePin(controller, _raspConfig.PinsConfig.LED_COMM);
-                controller.ClosePin(_raspConfig.PinsConfig.LED_COMM);
+                //controller.ClosePin(_raspConfig.PinsConfig.LED_COMM);
 
             }
             catch (Exception ex)
@@ -407,7 +405,7 @@ um contador para mensagens erradas e excluidas
                 {
                     if (messageInfo.State == MessageState.SENT)
                     {
-                        messageInfo.Timeout -= 10;
+                        messageInfo.Timeout -= 1;
 
                         if (messageInfo.Timeout <= 0)
                         {
@@ -434,7 +432,7 @@ um contador para mensagens erradas e excluidas
                 }
 
             }
-            await Task.Delay(10);
+            await Task.Delay(1);
         }
     }
 

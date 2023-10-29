@@ -103,8 +103,8 @@ public class FullDuplexProtocol
         {
             Header = MESSAGE_ID_SEND,
             VersionProtocol = VERSION_PROTOCOL,
-            TypeMessage = isACK? TypeMessage.MESSAGE_ACK:TypeMessage.MESSAGE_SEND,
-            SequenceNumber = isACK ? sequenceNumberMessageForACK: sequenceNumber,
+            TypeMessage = isACK ? TypeMessage.MESSAGE_ACK : TypeMessage.MESSAGE_SEND,
+            SequenceNumber = isACK ? sequenceNumberMessageForACK : sequenceNumber,
             Cmd = cmd,
             Len = (UInt16)buf.Count,
             CRC = null,
@@ -113,7 +113,7 @@ public class FullDuplexProtocol
 
         var messagePacketToBytes = PacketMessageToBytes(messagePacket); // Without CRC
 
-        if(!isACK) IncrementSequenceNumber(); // Increment the sequence number
+        if (!isACK) IncrementSequenceNumber(); // Increment the sequence number
 
         // Calculate the CRC using the provided delegate
         object crcObject = calculateCRC(messagePacketToBytes!);
@@ -155,11 +155,20 @@ public class FullDuplexProtocol
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error in desserialize message: {message}", ex.Message);
+            byte[] buffer = buf.ToArray(); // Seu buffer
+            string hexString = Utils.ToHexString(buffer);
+
+            _logger.LogError($"Error in deserialize message: {ex.Message} - Buffer = {hexString}");
+
         }
 
         if (receivedMessage == null)
             return null;
+
+        if (receivedMessage.PacketMessage == null)
+        {
+            _logger.LogError("here");
+        }
 
         try
         {
@@ -204,37 +213,43 @@ public class FullDuplexProtocol
     {
         int offset = 0;
 
-        PacketMessage packet = new PacketMessage();
-
-        packet.Header = BitConverter.ToUInt16(data, offset);
-        offset += Utils.AddToOffset(packet.Header);
-
-        packet.VersionProtocol = data[offset];
-        offset += Utils.AddToOffset(packet.VersionProtocol);
-
-        packet.TypeMessage = (TypeMessage)BitConverter.ToChar(data, offset);
-        offset += Utils.AddToOffset((byte)packet.TypeMessage);
-
-        packet.SequenceNumber = BitConverter.ToUInt16(data, offset);
-        offset += Utils.AddToOffset(packet.SequenceNumber);
-
-        packet.Cmd = data[offset];
-        offset += Utils.AddToOffset(packet.Cmd);
-
-        packet.Len = BitConverter.ToUInt16(data, offset);
-        offset += Utils.AddToOffset(packet.Len);
-
-        if (packet.Len > MessageConstants.MaxBuf)
+        //if (data.Length < offset + 2) return null;
+        PacketMessage packet = new()
         {
-            return null;
-        }
+            Header = BitConverter.ToUInt16(data, offset)
+        };
+        offset += 2;
 
+        //if (data.Length < offset + 1) return null;
+        packet.VersionProtocol = data[offset];
+        offset += 1;
+
+        //if (data.Length < offset + 1) return null;
+        packet.TypeMessage = (TypeMessage)BitConverter.ToChar(data, offset);
+        offset += 1;
+
+        //if (data.Length < offset + 2) return null;
+        packet.SequenceNumber = BitConverter.ToUInt16(data, offset);
+        offset += 2;
+
+        //if (data.Length < offset + 1) return null;
+        packet.Cmd = data[offset];
+        offset += 1;
+
+        //if (data.Length < offset + 2) return null;
+        packet.Len = BitConverter.ToUInt16(data, offset);
+        offset += 2;
+
+        //if (packet.Len > MessageConstants.MaxBuf) return null;
+
+        //if (data.Length < offset + packet.Len) return null;
         packet.Message = data.Skip(offset).Take(packet.Len).ToList();
         offset += packet.Len;
 
-        //TODO melhorar para verificar se o tipo de CRC é 16 ou 332 bits
+        // TODO: Certifique-se de ter espaço suficiente para ler o CRC aqui.
+        //if (data.Length < offset + 2) return null; // Supondo que seu CRC é sempre de 2 bytes.
         packet.CRC = BitConverter.ToUInt16(data, offset);
-        // No need to adjust offset after this since we're done.
+        // Não há necessidade de ajustar o offset depois disso, já que terminamos.
 
         return packet;
     }
